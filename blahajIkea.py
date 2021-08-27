@@ -90,10 +90,22 @@ def game_loop():
         # codes to keep track of the status of the game
 
         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     x_change = -5
-                    pos_shift_left = True
+                    # pos_shift_left = True
+
+                if event.key == pygame.K_RIGHT:
+                    x_change = 5
+                    # pos_shift_right = True
+
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                    x_change = 0
 
         # based on the new positions of the characters in the game, check collisions
 
