@@ -125,11 +125,11 @@ def header_render():
 
 
 def game_loop():
-    powerup_min_time = 2000
-    powerup_max_time = 5000
+    powerup_min_time = 1000
+    powerup_max_time = 2000
 
     point_min_time = 100
-    point_max_time = 500
+    point_max_time = 400
 
     point_item_speed = 7
 
@@ -251,6 +251,7 @@ def game_loop():
             point_item_onScreen = True
             point_item_posX = 1100
             point_item_posY = random.randint(60, 600)
+            point_item_speed = random.randint(4, 9)
             # print("point spawned")
 
         if point_item_onScreen:
@@ -279,14 +280,17 @@ def game_loop():
 
         if not win:
 
+            # note item rendered first get rendered in front
+            header_render()
+            boost_render(boost_meter)
+            scoreRender(score)
+
             gameDisplay.blit(blahajImg, (blahaj_posX, blahaj_posY))
 
             if point_item_onScreen:
                 gameDisplay.blit(meatballImg, (point_item_posX, point_item_posY))
 
-            header_render()
-            boost_render(boost_meter)
-            scoreRender(score)
+
 
 
 
