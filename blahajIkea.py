@@ -1,4 +1,5 @@
-### Stabby balloon game
+### blahaj at ikea game
+
 import random
 import pygame
 import time
@@ -26,6 +27,8 @@ yellow = (240, 240, 89)
 blahaj_width = 163
 blahaj_height = 93
 
+meatball_size = 30
+
 #################################################################
 
 
@@ -45,6 +48,11 @@ def load_images():
     blahajImg = pygame.image.load('images/blahajSwim.jpg')
     blahajImg = pygame.transform.scale(blahajImg, (blahaj_width, blahaj_height))
 
+    global meatballImg
+    meatballImg = pygame.image.load('images/meatball1.jpg')
+    meatballImg = pygame.transform.scale(meatballImg, (meatball_size, meatball_size))
+
+
 
 """
 Sample code for rendering objects on the screen
@@ -63,6 +71,7 @@ def text_objects(text, font):
     # render text objects
     textSurface = font.render(text, True, black)
     return textSurface, textSurface.get_rect()
+
 
 def boost_render(boost_val):
     # render bar
@@ -93,27 +102,36 @@ def boost_render(boost_val):
 
     gameDisplay.blit(text_obj, text_rect)
 
+
 def scoreRender(score):
     # add label in front [boost]
     text_font = pygame.font.Font('freesansbold.ttf', 20)
     text_obj = text_font.render("Score", True, black)
     text_rect = text_obj.get_rect()
-    text_rect.center = (980, 25)
+    text_rect.center = (960, 25)
 
     gameDisplay.blit(text_obj, text_rect)
 
     text_font = pygame.font.Font('freesansbold.ttf', 20)
     text_obj = text_font.render(str(score), True, black)
     text_rect = text_obj.get_rect()
-    text_rect.center = (1050, 25)
+    text_rect.center = (1040, 25)
 
     gameDisplay.blit(text_obj, text_rect)
+
 
 def header_render():
     header_bar = pygame.draw.rect(gameDisplay, light_gray, pygame.Rect(0, 0, display_width, 50))
 
 
 def game_loop():
+    powerup_min_time = 2000
+    powerup_max_time = 5000
+
+    point_min_time = 100
+    point_max_time = 500
+
+    point_item_speed = 7
 
     # calculate starting position for blahaj ralative to the screen (to be modified)
     blahaj_posX = int((display_width - 50) * 0.25 + 50)
@@ -128,11 +146,26 @@ def game_loop():
     grabby_postY = 0
     grabby_posX = 0
 
+    # position and spawning of powerup item
+    powerup_item_posX = 0
+    powerup_item_posY = 0
 
+    next_powerup_wait = random.randint(powerup_min_time, powerup_max_time)
+    next_powerup_count = 0
+    powerup_item_onScreen = False
+
+    # position and spawning of point items
+    point_item_posX = 1100
+    point_item_posY = random.randint(60, 600)
+
+    next_point_wait = random.randint(point_min_time, point_max_time)
+    next_point_count = 0
+    point_item_onScreen = False
 
     # variables to be tracked in the game
     dist_travelled = 0
     score = 0
+    score_count = 0
     dist_from_hand = 0
 
     boost_meter = 100
@@ -176,8 +209,6 @@ def game_loop():
                     boost_change = 2
                     x_change_blahaj = step_back
 
-
-
         # update blahaj position
         if boost_meter == 0:
             x_change_blahaj = step_back
@@ -202,6 +233,34 @@ def game_loop():
         elif boost_meter < 0:
             boost_meter = 0
 
+        # value tracking and counting
+        # score
+        score_count += 1
+        if score_count == 5:
+            score += 5
+            score_count = 0
+
+        # powerup spawning
+
+
+        # point spawning
+        next_point_count += 1
+        if next_point_count == next_point_wait:
+            next_point_count = 0
+            next_point_wait = random.randint(point_min_time, point_max_time)
+            point_item_onScreen = True
+            point_item_posX = 1100
+            point_item_posY = random.randint(60, 600)
+            # print("point spawned")
+
+        if point_item_onScreen:
+            point_item_posX -= point_item_speed
+            if (point_item_posY > blahaj_posY and point_item_posY < blahaj_posY + blahaj_height):
+                if (point_item_posX > blahaj_posX and point_item_posX < blahaj_posX + blahaj_width):
+
+                    point_item_onScreen = False
+                    score += 100
+                    # print("point scored")
 
         # based on the new positions of the characters in the game, check collisions
 
@@ -219,7 +278,11 @@ def game_loop():
         # if lose condition end the gameloop
 
         if not win:
+
             gameDisplay.blit(blahajImg, (blahaj_posX, blahaj_posY))
+
+            if point_item_onScreen:
+                gameDisplay.blit(meatballImg, (point_item_posX, point_item_posY))
 
             header_render()
             boost_render(boost_meter)
