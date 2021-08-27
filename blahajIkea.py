@@ -53,6 +53,11 @@ def stabby(x, y):
 
 """
 
+# def gen_render(x, y, character):
+#     # render the character in the game using blit
+#     gameDisplay.blit(character, x, y)
+
+
 def text_objects(text, font):
     # render text objects
     textSurface = font.render(text, True, black)
@@ -105,15 +110,10 @@ def game_loop():
 
         # if lose condition end the gameloop
 
+        pygame.display.update()
+        clock.tick(60)
 
 
-
-
-
-
-
-
-    pass
 
 
 def runBlahajGame():
