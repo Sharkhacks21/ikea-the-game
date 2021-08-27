@@ -14,10 +14,12 @@ blahaj_speed = 5
 
 # set colour values arrrays
 black = (0, 0, 0)
+gray = (50, 50, 50)
 white = (255, 255, 255)
 red = (240, 91, 74)
 green = (89, 240, 86)
 blue = (47, 235, 245)
+yellow = (240, 240, 89)
 
 # width of icon (tbd)
 blahaj_width = 163
@@ -61,6 +63,27 @@ def text_objects(text, font):
     textSurface = font.render(text, True, black)
     return textSurface, textSurface.get_rect()
 
+def boost_render(boost_val):
+    # render bar
+    if boost_val > 70:
+        color = green
+    elif boost_val > 30:
+        color = yellow
+    else:
+        color = red
+
+    boost_bar_bg = pygame.draw.rect(gameDisplay, gray, pygame.Rect(90, 30, 100, 30))
+    boost_bar = pygame.draw.rect(gameDisplay, color, pygame.Rect(90, 30, boost_val, 30))
+    print(boost_val)
+
+    # add label in front [boost]
+    # text_font = pygame.font.Font('freesansbold.ttf', 20)
+    # text_obj = text_font.render(title, True, black)
+    # text_rect = text_obj.get_rect()
+    # text_rect.center = (balloon_x, balloon_y)
+    #
+    # gameDisplay.blit(text_obj, text_rect)
+
 
 def game_loop():
 
@@ -79,11 +102,13 @@ def game_loop():
 
 
 
-
     # variables to be tracked in the game
     dist_travelled = 0
     score = 0
     dist_from_hand = 0
+
+    boost_meter = 100
+    boost_change = 2
 
     gameOver = False
     win = False
@@ -112,15 +137,22 @@ def game_loop():
 
                 if event.key == pygame.K_RIGHT:
                     x_change_blahaj = 5
+                    boost_change = -2
                     # pos_shift_right = True
 
             if event.type == pygame.KEYUP:
-                if event.key == pygame.K_UP or \
-                        event.key == pygame.K_RIGHT or \
-                        event.key == pygame.K_DOWN:
-                    x_change_blahaj = step_back
+                if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                     y_change_blahaj = 0
 
+                if event.key == pygame.K_RIGHT:
+                    boost_change = 2
+                    x_change_blahaj = step_back
+
+
+
+        # update blahaj position
+        if boost_meter == 0:
+            x_change_blahaj = step_back
         if x_change_blahaj < 0:
             if blahaj_posX > 100:
                 blahaj_posX += x_change_blahaj
@@ -135,6 +167,12 @@ def game_loop():
             if blahaj_posY < 590:
                 blahaj_posY += y_change_blahaj
 
+        # update boost position
+        boost_meter += boost_change
+        if boost_meter > 100:
+            boost_meter = 100
+        elif boost_meter < 0:
+            boost_meter = 0
 
 
         # based on the new positions of the characters in the game, check collisions
@@ -154,6 +192,7 @@ def game_loop():
 
         if not win:
             gameDisplay.blit(blahajImg, (blahaj_posX, blahaj_posY))
+            boost_render(boost_meter)
 
 
         pygame.display.update()
