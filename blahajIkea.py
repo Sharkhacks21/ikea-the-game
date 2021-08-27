@@ -61,16 +61,55 @@ def text_objects(text, font):
 
 def game_loop():
 
-    # calculate starting position for blahaj ralative to the screen
+    # calculate starting position for blahaj ralative to the screen (to be modified)
+    blahaj_posX = 0
+    blahaj_posY = 0
 
-
-    # calculate starting position for the grabby hand
+    # calculate starting position for the grabby hand (to be modified)
+    grabby_postY = 0
 
 
     # variables to be tracked in the game
     dist_travelled = 0
     score = 0
     dist_from_hand = 0
+
+    gameOver = False
+
+    # run the starting sequence
+
+
+    # while loop to check if the game is still in play or if the player has lost
+
+    while not gameOver:
+        # codes to keep track of the status of the game
+
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    x_change = -5
+                    pos_shift_left = True
+
+        # based on the new positions of the characters in the game, check collisions
+
+
+        # if there is a collision reducte the scores
+
+        # if a power up is picked up increment the score and despawn the power up
+
+        # if a meatball is picked up, despawn and increment the score
+
+        # check variables to see if new object should be spawned
+
+        # check if distance has been reached (to check for transition to next scene)
+
+        # if lose condition end the gameloop
+
+
+
+
+
+
 
 
 
