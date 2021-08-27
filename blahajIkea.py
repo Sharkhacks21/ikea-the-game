@@ -180,9 +180,9 @@ def runBlahajGame():
     load_images()
 
     # set the window icon (top corner)
-    # global programIcon
-    # programIcon = pygame.image.load('otherSources/logo.png')
-    # pygame.display.set_icon(programIcon)
+    global programIcon
+    programIcon = pygame.image.load("images/blahajIcon.jpg")
+    pygame.display.set_icon(programIcon)
 
     # run the game logic loop
     game_loop()
