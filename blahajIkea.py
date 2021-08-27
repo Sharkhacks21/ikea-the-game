@@ -20,8 +20,8 @@ green = (89, 240, 86)
 blue = (47, 235, 245)
 
 # width of icon (tbd)
-blahaj_width = 135
-blahaj_height = 154
+blahaj_width = 163
+blahaj_height = 93
 
 #################################################################
 
@@ -36,9 +36,11 @@ def load_images():
     gladBotImg = pygame.image.load('otherSources/glow_nyoomba_gladbot.png')
     # print(stabbyImg.get_rect().size)
     stabbyImg = pygame.transform.scale(stabbyImg, (stabby_width, stabby_height)
-
     """
-    pass
+
+    global blahajImg
+    blahajImg = pygame.image.load('images/blahajSwim.jpg')
+    blahajImg = pygame.transform.scale(blahajImg, (blahaj_width, blahaj_height))
 
 
 """
@@ -53,10 +55,6 @@ def stabby(x, y):
 
 """
 
-# def gen_render(x, y, character):
-#     # render the character in the game using blit
-#     gameDisplay.blit(character, x, y)
-
 
 def text_objects(text, font):
     # render text objects
@@ -67,11 +65,19 @@ def text_objects(text, font):
 def game_loop():
 
     # calculate starting position for blahaj ralative to the screen (to be modified)
-    blahaj_posX = 0
-    blahaj_posY = 0
+    blahaj_posX = int(display_width * 0.25)
+    blahaj_posY = int(display_height * 0.425)
+    print(blahaj_posX)
+
+    step_back = -2
+    x_change_blahaj = step_back
+    y_change_blahaj = 0
 
     # calculate starting position for the grabby hand (to be modified)
     grabby_postY = 0
+    grabby_posX = 0
+
+
 
 
     # variables to be tracked in the game
@@ -80,6 +86,7 @@ def game_loop():
     dist_from_hand = 0
 
     gameOver = False
+    win = False
 
     # run the starting sequence
 
@@ -95,17 +102,40 @@ def game_loop():
                 quit()
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    x_change = -5
+                if event.key == pygame.K_UP:
+                    y_change_blahaj = -5
                     # pos_shift_left = True
 
+                if event.key == pygame.K_DOWN:
+                    y_change_blahaj = 5
+                    # pos_shift_right = True
+
                 if event.key == pygame.K_RIGHT:
-                    x_change = 5
+                    x_change_blahaj = 5
                     # pos_shift_right = True
 
             if event.type == pygame.KEYUP:
-                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                    x_change = 0
+                if event.key == pygame.K_UP or \
+                        event.key == pygame.K_RIGHT or \
+                        event.key == pygame.K_DOWN:
+                    x_change_blahaj = step_back
+                    y_change_blahaj = 0
+
+        if x_change_blahaj < 0:
+            if blahaj_posX > 100:
+                blahaj_posX += x_change_blahaj
+        else:
+            if blahaj_posX < 730:
+                blahaj_posX += x_change_blahaj
+
+        if y_change_blahaj < 0:
+            if blahaj_posY > 20:
+                blahaj_posY += y_change_blahaj
+        else:
+            if blahaj_posY < 590:
+                blahaj_posY += y_change_blahaj
+
+
 
         # based on the new positions of the characters in the game, check collisions
 
@@ -121,6 +151,10 @@ def game_loop():
         # check if distance has been reached (to check for transition to next scene)
 
         # if lose condition end the gameloop
+
+        if not win:
+            gameDisplay.blit(blahajImg, (blahaj_posX, blahaj_posY))
+
 
         pygame.display.update()
         clock.tick(60)
