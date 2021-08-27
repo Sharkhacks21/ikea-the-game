@@ -7,7 +7,7 @@ import time
 # Constants for the game
 
 # display window size
-display_width = 900
+display_width = 1100
 display_height = 700
 
 blahaj_speed = 5
@@ -15,6 +15,7 @@ blahaj_speed = 5
 # set colour values arrrays
 black = (0, 0, 0)
 gray = (50, 50, 50)
+light_gray = (180, 180, 180)
 white = (255, 255, 255)
 red = (240, 91, 74)
 green = (89, 240, 86)
@@ -72,23 +73,50 @@ def boost_render(boost_val):
     else:
         color = red
 
-    boost_bar_bg = pygame.draw.rect(gameDisplay, gray, pygame.Rect(90, 30, 100, 30))
-    boost_bar = pygame.draw.rect(gameDisplay, color, pygame.Rect(90, 30, boost_val, 30))
-    print(boost_val)
+    bar_posX = 90
+    bar_posY = 10
+    bar_height = 30
+
+    boost_bar_outline = pygame.draw.rect(gameDisplay, black, pygame.Rect(bar_posX - 2,
+                                                                        bar_posY - 2,
+                                                                        100 + 4,
+                                                                        bar_height + 4))
+    boost_bar_bg = pygame.draw.rect(gameDisplay, gray, pygame.Rect(bar_posX, bar_posY, 100, bar_height))
+    boost_bar = pygame.draw.rect(gameDisplay, color, pygame.Rect(bar_posX, bar_posY, boost_val, bar_height))
+
 
     # add label in front [boost]
-    # text_font = pygame.font.Font('freesansbold.ttf', 20)
-    # text_obj = text_font.render(title, True, black)
-    # text_rect = text_obj.get_rect()
-    # text_rect.center = (balloon_x, balloon_y)
-    #
-    # gameDisplay.blit(text_obj, text_rect)
+    text_font = pygame.font.Font('freesansbold.ttf', 20)
+    text_obj = text_font.render("Boost", True, black)
+    text_rect = text_obj.get_rect()
+    text_rect.center = (50, 25)
+
+    gameDisplay.blit(text_obj, text_rect)
+
+def scoreRender(score):
+    # add label in front [boost]
+    text_font = pygame.font.Font('freesansbold.ttf', 20)
+    text_obj = text_font.render("Score", True, black)
+    text_rect = text_obj.get_rect()
+    text_rect.center = (980, 25)
+
+    gameDisplay.blit(text_obj, text_rect)
+
+    text_font = pygame.font.Font('freesansbold.ttf', 20)
+    text_obj = text_font.render(str(score), True, black)
+    text_rect = text_obj.get_rect()
+    text_rect.center = (1050, 25)
+
+    gameDisplay.blit(text_obj, text_rect)
+
+def header_render():
+    header_bar = pygame.draw.rect(gameDisplay, light_gray, pygame.Rect(0, 0, display_width, 50))
 
 
 def game_loop():
 
     # calculate starting position for blahaj ralative to the screen (to be modified)
-    blahaj_posX = int(display_width * 0.25)
+    blahaj_posX = int((display_width - 50) * 0.25 + 50)
     blahaj_posY = int(display_height * 0.425)
     print(blahaj_posX)
 
@@ -157,11 +185,11 @@ def game_loop():
             if blahaj_posX > 100:
                 blahaj_posX += x_change_blahaj
         else:
-            if blahaj_posX < 730:
+            if blahaj_posX < 930:
                 blahaj_posX += x_change_blahaj
 
         if y_change_blahaj < 0:
-            if blahaj_posY > 20:
+            if blahaj_posY > 70:
                 blahaj_posY += y_change_blahaj
         else:
             if blahaj_posY < 590:
@@ -192,7 +220,11 @@ def game_loop():
 
         if not win:
             gameDisplay.blit(blahajImg, (blahaj_posX, blahaj_posY))
+
+            header_render()
             boost_render(boost_meter)
+            scoreRender(score)
+
 
 
         pygame.display.update()
