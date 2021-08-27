@@ -45,7 +45,7 @@ def load_images():
     """
 
     global blahajImg
-    blahajImg = pygame.image.load('images/blahajSwim.jpg')
+    blahajImg = pygame.image.load('images/blahajSwim.png')
     blahajImg = pygame.transform.scale(blahajImg, (blahaj_width, blahaj_height))
 
     global meatballImg
@@ -245,18 +245,21 @@ def game_loop():
 
         # point spawning
         next_point_count += 1
-        if next_point_count == next_point_wait:
+        if next_point_count == next_point_wait and not point_item_onScreen:
             next_point_count = 0
             next_point_wait = random.randint(point_min_time, point_max_time)
             point_item_onScreen = True
             point_item_posX = 1100
             point_item_posY = random.randint(60, 600)
             point_item_speed = random.randint(4, 9)
-            # print("point spawned")
+            print("point spawned")
 
         if point_item_onScreen:
             point_item_posX -= point_item_speed
-            if (point_item_posY > blahaj_posY and point_item_posY < blahaj_posY + blahaj_height):
+            print(point_item_posX)
+            if point_item_posX < -50:
+                point_item_onScreen = False
+            elif (point_item_posY > blahaj_posY and point_item_posY < blahaj_posY + blahaj_height):
                 if (point_item_posX > blahaj_posX and point_item_posX < blahaj_posX + blahaj_width):
 
                     point_item_onScreen = False
