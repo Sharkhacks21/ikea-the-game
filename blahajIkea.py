@@ -29,42 +29,82 @@ blahaj_height = 93
 
 meatball_size = 30
 
+total_levels = 1
+
+"""
+# Areas in order
+0 - Childrens area
+1 - Bedroom
+2 - Bathroom
+"""
+
+### obstacle sizes
+top_width = [
+    187
+]
+top_height = [
+    203
+]
+
+bottom_width = [
+    160
+]
+bottom_height = [
+    160
+]
+bg_width = [
+    1960
+]
+bg_height = [
+    980
+]
+
+# arrays for the level images (init empty)
+obstacle_top_imgs = []
+obstacle_bottom_imgs = []
+bg_imgs = []
+
+# image file paths
+bg_img_paths = [
+    'images/Children\'s Area/Children\'s Area BG.jpg'
+]
+top_img_paths = [
+    'images/Children\'s Area/Children\'s Area top obs.png'
+]
+bottom_img_paths = [
+    'images/Children\'s Area/Children\'s Area bottom obs.png'
+]
 #################################################################
 
 
 # function that is called from main to open the window for the game
 def load_images():
-    # for each of the images in the game, create a global object for it, then laod it eg:
-    """
-    global stabbyImg
-    stabbyImg = pygame.image.load('otherSources/glow_nyoomba_stabby.png')
-    global gladBotImg
-    gladBotImg = pygame.image.load('otherSources/glow_nyoomba_gladbot.png')
-    # print(stabbyImg.get_rect().size)
-    stabbyImg = pygame.transform.scale(stabbyImg, (stabby_width, stabby_height)
-    """
 
-    global blahajImg
-    blahajImg = pygame.image.load('images/blahajSwim.png')
-    blahajImg = pygame.transform.scale(blahajImg, (blahaj_width, blahaj_height))
+    # blahaj
+    global blahaj_Img
+    blahaj_Img = pygame.image.load('images/blahajSwim.png')
+    blahaj_Img = pygame.transform.scale(blahaj_Img, (blahaj_width, blahaj_height))
 
-    global meatballImg
-    meatballImg = pygame.image.load('images/meatball1.jpg')
-    meatballImg = pygame.transform.scale(meatballImg, (meatball_size, meatball_size))
+    # points and powerups
+    global meatball_Img
+    meatball_Img = pygame.image.load('images/meatball1.jpg')
+    meatball_Img = pygame.transform.scale(meatball_Img, (meatball_size, meatball_size))
 
+    # add images
+    for level in range(0, total_levels):
+        bg_imgs.append(pygame.image.load(bg_img_paths[level]))
+        bg_imgs[level] = pygame.transform.scale(bg_imgs[level],
+                                                          (bg_width[level], bg_height[level])
+                                                          )
+        obstacle_top_imgs.append(pygame.image.load(top_img_paths[level]))
+        obstacle_top_imgs[level] = pygame.transform.scale(obstacle_top_imgs[level],
+                                                          (top_width[level], top_height[level])
+                                                          )
 
-
-"""
-Sample code for rendering objects on the screen
-
-# render stabby at the start of the game
-def stabby(x, y):
-    # render stabby in the game using blit
-    gameDisplay.blit(stabbyImg, (x, y))
-    
-# Need to create one generic function that works for all images loaded
-
-"""
+        obstacle_bottom_imgs.append(pygame.image.load(bottom_img_paths[level]))
+        obstacle_bottom_imgs[level] = pygame.transform.scale(obstacle_bottom_imgs[level],
+                                                             (bottom_width[level], bottom_height[level])
+                                                             )
 
 
 def text_objects(text, font):
@@ -124,6 +164,23 @@ def header_render():
     header_bar = pygame.draw.rect(gameDisplay, light_gray, pygame.Rect(0, 0, display_width, 50))
 
 
+def damagable_indicator_render(collision_proof, invincibility, damagable):
+    text = ""
+    if collision_proof > 0:
+        text += "[c]"
+    if invincibility > 0:
+        text += "[i]"
+    if damagable:
+        text += "[d]"
+
+    text_font = pygame.font.Font('freesansbold.ttf', 20)
+    text_obj = text_font.render(text, True, black)
+    text_rect = text_obj.get_rect()
+    text_rect.center = (800, 25)
+
+    gameDisplay.blit(text_obj, text_rect)
+
+
 def game_loop():
     ## Constants
     powerup_min_time = 1000
@@ -132,9 +189,12 @@ def game_loop():
     point_min_time = 100
     point_max_time = 400
 
-    point_item_speed = 7
+    obstacle_min_time = 50
+    obstacle_max_time = 300
 
     obstacle_speed = 4
+
+    collision_cooldown = 50
 
     ############################################################################
 
@@ -158,6 +218,7 @@ def game_loop():
     next_powerup_wait = random.randint(powerup_min_time, powerup_max_time)
     next_powerup_count = 0
     powerup_item_onScreen = False
+    powerup_item_speed = 7
 
     ## position and spawning of point items
     point_item_posX = 1100
@@ -165,11 +226,35 @@ def game_loop():
     next_point_wait = random.randint(point_min_time, point_max_time)
     next_point_count = 0
     point_item_onScreen = False
+    point_item_speed = 7
+
+    ############################################################################
 
     ## moving trolley obstacle
     trolley_posX = 0
     trolley_posY = 0
     trolley_speed = 0
+    top_obstacle_onScreen = False
+    top_obstacle_next = random.randint(point_min_time, point_max_time)
+    top_obstacle_wait = 0
+
+    ############################################################################
+    # track the top and bottom obstacle spawning
+    top_obstacle_posX = 0
+    top_obstacle_posY = 0
+    top_obstacle_onScreen = False
+    top_obstacle_wait = random.randint(obstacle_min_time, obstacle_max_time)
+    top_obstacle_next = 0
+
+
+    bottom_obstacle_posX = 0
+    bottom_obstacle_posY = 0
+    bottom_obstacle_onScreen = False
+    bottom_obstacle_wait = random.randint(obstacle_min_time, obstacle_max_time)
+    bottom_obstacle_next = 0
+
+
+    print(bottom_obstacle_wait, top_obstacle_wait)
 
     ############################################################################
 
@@ -185,7 +270,12 @@ def game_loop():
     gameOver = False
     win = False
 
-    # run the starting sequence
+    level = 0
+
+    invincibility = 0
+    collision_proof = 0
+
+    damagable = True
 
     ############################################################################
 
@@ -241,7 +331,6 @@ def game_loop():
 
         ###################################################
 
-
         # update boost position
         boost_meter += boost_change
         if boost_meter > 100:
@@ -256,9 +345,18 @@ def game_loop():
             score += 5
             score_count = 0
 
+        if invincibility != 0:
+            invincibility -= 1
+        if collision_proof != 0:
+            collision_proof -= 1
+
+        damagable = not (invincibility > 0 or collision_proof > 0)
+
+
         ###################################################
 
         # powerup spawning
+        
 
 
         # point spawning
@@ -270,38 +368,80 @@ def game_loop():
             point_item_posX = 1100
             point_item_posY = random.randint(60, 600)
             point_item_speed = random.randint(4, 9)
-            # print("point spawned")
+            # print("Point object spawned", point_item_posX, point_item_posY)
 
         if point_item_onScreen:
             point_item_posX -= point_item_speed
-            # print(point_item_posX)
             if point_item_posX < -50:
                 point_item_onScreen = False
-            elif (point_item_posY > blahaj_posY and point_item_posY < blahaj_posY + blahaj_height):
-                if (point_item_posX > blahaj_posX and point_item_posX < blahaj_posX + blahaj_width):
-
-                    point_item_onScreen = False
-                    score += 100
-                    # print("point scored")
+                next_point_count = 0
+                # print("point despawn")
+            elif not point_item_posY > blahaj_posY + blahaj_height \
+                    and not point_item_posY + meatball_size < blahaj_posY \
+                    and not point_item_posX + meatball_size < blahaj_posX \
+                    and not point_item_posX > blahaj_posX + blahaj_width:
+                next_point_count = 0
+                point_item_onScreen = False
+                score += 100
+                # print("point collected")
 
         ###################################################
 
         # static obstacle spawning
+        top_obstacle_next += 1
+        if top_obstacle_next == top_obstacle_wait and not top_obstacle_onScreen:
+            top_obstacle_next = 0
+            top_obstacle_wait = random.randint(obstacle_min_time, obstacle_max_time)
+            top_obstacle_onScreen = True
+            top_obstacle_posX = 1100
+            top_obstacle_posY = random.randint(60, 370 - top_height[level])
+            # print("obstacle", top_obstacle_posX, top_obstacle_posY)
 
 
+        bottom_obstacle_next += 1
+        if bottom_obstacle_next == bottom_obstacle_wait and not bottom_obstacle_onScreen:
+            bottom_obstacle_next = 0
+            bottom_obstacle_wait = random.randint(obstacle_min_time, obstacle_max_time)
+            bottom_obstacle_onScreen = True
+            bottom_obstacle_posX = 1100
+            bottom_obstacle_posY = random.randint(370, 700 - bottom_height[level])
+
+        # collision checking
+        if top_obstacle_onScreen:
+            top_obstacle_posX -= obstacle_speed
+            if top_obstacle_posX < - top_width[level]:
+                top_obstacle_onScreen = False
+                top_obstacle_next = 0
+            elif damagable \
+                    and not top_obstacle_posY + top_height[level] < blahaj_posY \
+                    and not top_obstacle_posY > blahaj_posY + blahaj_height \
+                    and not top_obstacle_posX + top_width[level] < blahaj_posX \
+                    and not top_obstacle_posX > blahaj_posX + blahaj_width:
+                collision_proof = collision_cooldown
+                score -= 100
+
+        if bottom_obstacle_onScreen:
+            bottom_obstacle_posX -= obstacle_speed
+            if bottom_obstacle_posX < - top_width[level]:
+                bottom_obstacle_onScreen = False
+                bottom_obstacle_next = 0
+            elif damagable \
+                    and not bottom_obstacle_posY + bottom_height[level] < blahaj_posY \
+                    and not bottom_obstacle_posY > blahaj_posY + blahaj_height \
+                    and not bottom_obstacle_posX + bottom_width[level] < blahaj_posX \
+                    and not bottom_obstacle_posX > blahaj_posX + blahaj_width:
+                collision_proof = collision_cooldown
+                score -= 100
 
         ###################################################
 
         # trolley spawning
 
 
-        # if there is a collision reducte the scores
+        # collision checking
 
-        # if a power up is picked up increment the score and despawn the power up
+        ############################################################################
 
-        # if a meatball is picked up, despawn and increment the score
-
-        # check variables to see if new object should be spawned
 
         # check if distance has been reached (to check for transition to next scene)
 
@@ -309,19 +449,36 @@ def game_loop():
 
         if not win:
 
-            # note item rendered first get rendered in front
+            # note item rendered first get rendered in behind
+
+            # render bg
+            gameDisplay.blit(bg_imgs[level], (0, 0))
+
+            # render blahaj
+            gameDisplay.blit(blahaj_Img, (blahaj_posX, blahaj_posY))
+
+            # render point and powerup objects
+            if point_item_onScreen:
+                gameDisplay.blit(meatball_Img, (point_item_posX, point_item_posY))
+
+
+            # render obstacles
+            if top_obstacle_onScreen:
+                gameDisplay.blit(obstacle_top_imgs[level], (top_obstacle_posX, top_obstacle_posY))
+
+
+            if bottom_obstacle_onScreen:
+                gameDisplay.blit(obstacle_bottom_imgs[level], (bottom_obstacle_posX, bottom_obstacle_posY))
+
+
+            # render grabby hand
+
+            # render header labels
             header_render()
             boost_render(boost_meter)
             scoreRender(score)
 
-            gameDisplay.blit(blahajImg, (blahaj_posX, blahaj_posY))
-
-            if point_item_onScreen:
-                gameDisplay.blit(meatballImg, (point_item_posX, point_item_posY))
-
-
-
-
+            damagable_indicator_render(collision_proof, invincibility, damagable)
 
         pygame.display.update()
         clock.tick(60)
