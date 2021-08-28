@@ -281,7 +281,7 @@ def game_loop():
     powerup_min_time = 500
     powerup_max_time = 1000
 
-    grabby_lunge_min_time = 300
+    grabby_lunge_min_time = 290
     grabby_lunge_max_time = 400
 
     grabby_forward_mim_time = 50
@@ -628,14 +628,15 @@ def game_loop():
 
         # check grabby collisions
         if damagable \
-                and not top_obstacle_posY + top_height[level] < blahaj_posY + 10 \
-                and not top_obstacle_posY > blahaj_posY + blahaj_height - 20 \
-                and not top_obstacle_posX + top_width[level] < blahaj_posX + 10\
-                and not top_obstacle_posX > blahaj_posX + blahaj_width - 10:
+                and not grabby_posY + grabby_height < blahaj_posY + 10 \
+                and not grabby_posY > blahaj_posY + blahaj_height - 20 \
+                and not grabby_posX + grabby_width < blahaj_posX + 10 \
+                and not grabby_posX > blahaj_posX + blahaj_width - 20:
             gameOver = True
             win = False
             # play lose sound
             score -= 100
+            print("you lost!")
 
 
         ###################################################
@@ -833,6 +834,6 @@ def runBlahajGame():
     pygame.quit()
 
     # no need to quit
-    quit()
+    # quit()
 
     return
