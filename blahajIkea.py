@@ -42,9 +42,9 @@ trolley_height = 120
 
 meatball_size = 30
 
-total_levels = 1
+total_levels = 3
 
-level_distance = 500
+level_distance = 100
 
 """
 # Areas in order
@@ -55,27 +55,35 @@ level_distance = 500
 
 ### obstacle sizes
 top_width = [
-    155
+    155,
+    130,
+    165
 ]
 top_height = [
-    169
+    169,
+    143,
+    113
 ]
 
 bottom_width = [
     160,
-    144
+    131,
+    105
 ]
 bottom_height = [
     160,
-    177
+    165,
+    160
 ]
 bg_width = [
     1960,
-    2100
+    2100,
+    2000
 ]
 bg_height = [
     980,
-    1190
+    1190,
+    1000
 ]
 
 # arrays for the level images (init empty)
@@ -86,15 +94,18 @@ bg_imgs = []
 # image file paths
 bg_img_paths = [
     'images/Children\'s Area/Children\'s Area BG.jpg',
-    'images/Bedroom/BedroomBG.jpg'
+    'images/Bedroom/BedroomBG.jpg',
+    'images/Bathroom/BathroomBG.jpg'
 ]
 top_img_paths = [
     'images/Children\'s Area/Children\'s Area top obs.png',
-    'images/Bedroom/BedroomTopObs.png'
+    'images/Bedroom/BedroomTopObs.png',
+    'images/Bathroom/BathroomTopObs.png'
 ]
 bottom_img_paths = [
     'images/Children\'s Area/Children\'s Area bottom obs.png',
-    'images/Bedroom/BedroomBottomObs.png'
+    'images/Bedroom/BedroomBottomObs.png',
+    'images/Bathroom/BathroomBottomObs.png'
 ]
 #################################################################
 
@@ -130,6 +141,10 @@ def load_images():
     global trolley_Img
     trolley_Img = pygame.image.load('images/characters/Trolley.png')
     trolley_Img = pygame.transform.scale(trolley_Img, (trolley_width, trolley_height))
+
+    global trolley_left_Img
+    trolley_left_Img = pygame.image.load('images/characters/Trolley_left.png')
+    trolley_left_Img = pygame.transform.scale(trolley_left_Img, (trolley_width, trolley_height))
 
 
     # add level images
@@ -384,11 +399,8 @@ def game_loop():
 
     level = 0
 
-    bg_posX = 0
-
     invincibility = 0
     collision_proof = 0
-
 
     ############################################################################
 
@@ -614,15 +626,14 @@ def game_loop():
         if grabby_posX < 0:
             grabby_posX = 0
 
-
         # check grabby collisions
         if damagable \
                 and not top_obstacle_posY + top_height[level] < blahaj_posY + 10 \
                 and not top_obstacle_posY > blahaj_posY + blahaj_height - 20 \
                 and not top_obstacle_posX + top_width[level] < blahaj_posX + 10\
                 and not top_obstacle_posX > blahaj_posX + blahaj_width - 10:
-            # gameOver = True
-            # win = False
+            gameOver = True
+            win = False
             # play lose sound
             score -= 100
 
@@ -688,12 +699,10 @@ def game_loop():
             trolley_posY = random.choice([-101, 701])
             trolley_destX = random.randint(0, display_width - trolley_width)
             trolley_destY = -101 if trolley_posY == 701 else 701
-            print("trolley spawned!")
+            # print("trolley spawned!")
 
             trolley_X_positive = (trolley_destX - trolley_posX) > 0 # going right
             trolley_Y_positive = (trolley_destY - trolley_posY) > 0 # going down
-
-        print(trolley_next)
 
         # collision checking
         if trolley_onScreen:
@@ -727,7 +736,10 @@ def game_loop():
         # check if distance has been reached (to check for transition to next scene)
         if dist_travelled > level_distance:
             dist_travelled = 0
-            # level += 1
+            level += 1
+            if level > total_levels:
+                win = True
+                gamevOver = True
             score += time_bonus
             time_bonus = 0
 
@@ -749,6 +761,7 @@ def game_loop():
                          (collision_proof % 5 == 0 or collision_proof % 5 == 1)):
                     gameDisplay.blit(blahaj_Img, (blahaj_posX, blahaj_posY))
 
+            # render grabby hand
             gameDisplay.blit(grabby_Img, (grabby_posX, grabby_posY))
 
             # render point and powerup objects
@@ -763,14 +776,13 @@ def game_loop():
                 gameDisplay.blit(obstacle_top_imgs[level], (top_obstacle_posX, top_obstacle_posY))
 
             if trolley_onScreen:
-                gameDisplay.blit(trolley_Img, (trolley_posX, trolley_posY))
+                if trolley_X_positive:
+                    gameDisplay.blit(trolley_left_Img, (trolley_posX, trolley_posY))
+                else:
+                    gameDisplay.blit(trolley_Img, (trolley_posX, trolley_posY))
 
             if bottom_obstacle_onScreen:
                 gameDisplay.blit(obstacle_bottom_imgs[level], (bottom_obstacle_posX, bottom_obstacle_posY))
-
-
-            # render grabby hand
-
 
             # render header labels
             header_render()
@@ -783,14 +795,13 @@ def game_loop():
         else:
             if win:
                 # show win screen
-                pass
+                break
             else:
                 # show lose
-                pass
+                break
 
         pygame.display.update()
         clock.tick(60)
-
 
 
 def runBlahajGame():
