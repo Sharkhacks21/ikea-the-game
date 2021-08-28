@@ -13,7 +13,7 @@ display_height = 700
 
 blahaj_speed = 5
 
-# set colour values arrrays
+# set colour values arrays
 black = (0, 0, 0)
 dark_gray = (50, 50, 50)
 gray = (130, 130, 130)
@@ -92,12 +92,12 @@ def load_images():
 
     # blahaj
     global blahaj_Img
-    blahaj_Img = pygame.image.load('images/blahajSwim.png')
+    blahaj_Img = pygame.image.load('images/characters/blahajSwim.png')
     blahaj_Img = pygame.transform.scale(blahaj_Img, (blahaj_width, blahaj_height))
 
     # points and powerups
     global meatball_Img
-    meatball_Img = pygame.image.load('images/meatball1.png')
+    meatball_Img = pygame.image.load('images/characters/meatball1.png')
     meatball_Img = pygame.transform.scale(meatball_Img, (meatball_size, meatball_size))
 
 
@@ -118,7 +118,7 @@ def load_images():
                                                              )
 
     global miniBlahaj_Img
-    miniBlahaj_Img = pygame.image.load('images/mini_blahaj.png')
+    miniBlahaj_Img = pygame.image.load('images/characters/mini_blahaj.png')
     miniBlahaj_Img = pygame.transform.scale(miniBlahaj_Img, (30, 30))
 
 
@@ -232,8 +232,8 @@ def level_num_render(level):
 
 def game_loop():
     ## Constants
-    powerup_min_time = 1000
-    powerup_max_time = 2000
+    powerup_min_time = 500
+    powerup_max_time = 1000
 
     point_min_time = 100
     point_max_time = 400
@@ -281,7 +281,7 @@ def game_loop():
 
     ## moving trolley obstacle
     trolley_posX = 0
-    trolley_posY = 0
+    trolley_posY = -100
     trolley_speed = 0
     top_obstacle_onScreen = False
     top_obstacle_next = random.randint(point_min_time, point_max_time)
@@ -301,7 +301,7 @@ def game_loop():
     bottom_obstacle_wait = random.randint(obstacle_min_time, obstacle_max_time)
     bottom_obstacle_next = 0
 
-    print(bottom_obstacle_wait, top_obstacle_wait)
+    # print(bottom_obstacle_wait, top_obstacle_wait)
 
     ############################################################################
 
@@ -503,7 +503,7 @@ def game_loop():
 
         ############################################################################
 
-        score = score if score > 0 else score = 0
+        score = score if score > 0 else 0
 
         # check if distance has been reached (to check for transition to next scene)
         if dist_travelled > level_distance:
@@ -539,6 +539,7 @@ def game_loop():
 
             # render grabby hand
 
+
             # render header labels
             header_render()
             boost_render(boost_meter)
@@ -571,7 +572,7 @@ def runBlahajGame():
 
     # set the window icon (top corner)
     global programIcon
-    programIcon = pygame.image.load("images/blahajIcon.jpg")
+    programIcon = pygame.image.load("images/characters/blahajIcon.jpg")
     pygame.display.set_icon(programIcon)
 
     # run the game logic loop
