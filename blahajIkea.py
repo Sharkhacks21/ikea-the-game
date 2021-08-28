@@ -176,6 +176,16 @@ def damagable_indicator_render(collision_proof, invincibility, damagable):
     text_font = pygame.font.Font('freesansbold.ttf', 20)
     text_obj = text_font.render(text, True, black)
     text_rect = text_obj.get_rect()
+    text_rect.center = (890, 25)
+
+    gameDisplay.blit(text_obj, text_rect)
+
+def dist_travel_bar(dist_travelled):
+    # replace with icon travel
+
+    text_font = pygame.font.Font('freesansbold.ttf', 20)
+    text_obj = text_font.render(str(dist_travelled), True, black)
+    text_rect = text_obj.get_rect()
     text_rect.center = (800, 25)
 
     gameDisplay.blit(text_obj, text_rect)
@@ -260,6 +270,8 @@ def game_loop():
 
     # variables to be tracked in the game
     dist_travelled = 0
+    dist_count = 0
+
     score = 0
     score_count = 0
     dist_from_hand = 0
@@ -329,6 +341,7 @@ def game_loop():
             if blahaj_posY < 590:
                 blahaj_posY += y_change_blahaj
 
+
         ###################################################
 
         # update boost position
@@ -345,6 +358,16 @@ def game_loop():
             score += 5
             score_count = 0
 
+        # distance
+        dist_count += 2
+        if boost_change < 0 and boost_meter != 0:
+            dist_count += 1
+
+        if dist_count // 10:
+            dist_count = dist_count % 10
+            dist_travelled += 1
+
+
         if invincibility != 0:
             invincibility -= 1
         if collision_proof != 0:
@@ -356,7 +379,7 @@ def game_loop():
         ###################################################
 
         # powerup spawning
-        
+
 
 
         # point spawning
@@ -377,7 +400,7 @@ def game_loop():
                 next_point_count = 0
                 # print("point despawn")
             elif not point_item_posY > blahaj_posY + blahaj_height \
-                    and not point_item_posY + meatball_size < blahaj_posY \
+                    and not point_item_posY + meatball_size < blahaj_posY + 10 \
                     and not point_item_posX + meatball_size < blahaj_posX \
                     and not point_item_posX > blahaj_posX + blahaj_width:
                 next_point_count = 0
@@ -413,7 +436,7 @@ def game_loop():
                 top_obstacle_onScreen = False
                 top_obstacle_next = 0
             elif damagable \
-                    and not top_obstacle_posY + top_height[level] < blahaj_posY \
+                    and not top_obstacle_posY + top_height[level] < blahaj_posY + 10 \
                     and not top_obstacle_posY > blahaj_posY + blahaj_height \
                     and not top_obstacle_posX + top_width[level] < blahaj_posX \
                     and not top_obstacle_posX > blahaj_posX + blahaj_width:
@@ -426,7 +449,7 @@ def game_loop():
                 bottom_obstacle_onScreen = False
                 bottom_obstacle_next = 0
             elif damagable \
-                    and not bottom_obstacle_posY + bottom_height[level] < blahaj_posY \
+                    and not bottom_obstacle_posY + bottom_height[level] < blahaj_posY + 10 \
                     and not bottom_obstacle_posY > blahaj_posY + blahaj_height \
                     and not bottom_obstacle_posX + bottom_width[level] < blahaj_posX \
                     and not bottom_obstacle_posX > blahaj_posX + blahaj_width:
@@ -477,8 +500,8 @@ def game_loop():
             header_render()
             boost_render(boost_meter)
             scoreRender(score)
-
             damagable_indicator_render(collision_proof, invincibility, damagable)
+            dist_travel_bar(dist_travelled)
 
         pygame.display.update()
         clock.tick(60)
