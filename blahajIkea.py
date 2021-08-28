@@ -44,7 +44,7 @@ meatball_size = 30
 
 total_levels = 3
 
-level_distance = 100
+level_distance = 700
 
 """
 # Areas in order
@@ -107,8 +107,13 @@ bottom_img_paths = [
     'images/Bedroom/BedroomBottomObs.png',
     'images/Bathroom/BathroomBottomObs.png'
 ]
-#################################################################
 
+#################################################################
+## variables
+
+replay = False
+
+#################################################################
 
 # function that is called from main to open the window for the game
 def load_images():
@@ -795,15 +800,36 @@ def game_loop():
 
         else:
             if win:
-                # show win screen
-                break
+                # save as win
+                return win
             else:
-                # show lose
-                break
+                # save as lose
+                return win
 
         pygame.display.update()
         clock.tick(60)
 
+def win_screen_loop():
+    # show win screen
+    # while True:
+        # render win bg
+        # render win text
+        # render replay button
+        # check for input
+    # return replay
+    pass
+
+def lose_screen_loop():
+    # show lose
+
+    # while True:
+    #     # render lose bg
+    #     # render lose text
+    #     # render replay button
+    #     # check for input
+    #
+    # return replay
+    pass
 
 def runBlahajGame():
     ## Pygame segment
@@ -827,13 +853,19 @@ def runBlahajGame():
     programIcon = pygame.image.load("images/characters/blahajIcon.jpg")
     pygame.display.set_icon(programIcon)
 
-    # run the game logic loop
-    game_loop()
+    play = True
+
+    # run the game logic loop'
+    # while play:
+        # run game loop
+        # if win run win screen
+        # if lose run lose creen
+    win = game_loop()
 
     # end the program if the game_loop is exited
     pygame.quit()
 
-    # no need to quit
+    # no need to quit this ends the program
     # quit()
 
     return
