@@ -125,6 +125,7 @@ def header_render():
 
 
 def game_loop():
+    ## Constants
     powerup_min_time = 1000
     powerup_max_time = 2000
 
@@ -133,34 +134,44 @@ def game_loop():
 
     point_item_speed = 7
 
-    # calculate starting position for blahaj ralative to the screen (to be modified)
+    obstacle_speed = 4
+
+    ############################################################################
+
+    ## calculate starting position for blahaj ralative to the screen (to be modified)
     blahaj_posX = int((display_width - 50) * 0.25 + 50)
     blahaj_posY = int(display_height * 0.425)
-    print(blahaj_posX)
 
     step_back = -2
     x_change_blahaj = step_back
     y_change_blahaj = 0
 
-    # calculate starting position for the grabby hand (to be modified)
+    ## calculate starting position for the grabby hand (to be modified)
     grabby_postY = 0
     grabby_posX = 0
 
-    # position and spawning of powerup item
+    ############################################################################
+
+    ## position and spawning of powerup item
     powerup_item_posX = 0
     powerup_item_posY = 0
-
     next_powerup_wait = random.randint(powerup_min_time, powerup_max_time)
     next_powerup_count = 0
     powerup_item_onScreen = False
 
-    # position and spawning of point items
+    ## position and spawning of point items
     point_item_posX = 1100
     point_item_posY = random.randint(60, 600)
-
     next_point_wait = random.randint(point_min_time, point_max_time)
     next_point_count = 0
     point_item_onScreen = False
+
+    ## moving trolley obstacle
+    trolley_posX = 0
+    trolley_posY = 0
+    trolley_speed = 0
+
+    ############################################################################
 
     # variables to be tracked in the game
     dist_travelled = 0
@@ -176,9 +187,9 @@ def game_loop():
 
     # run the starting sequence
 
+    ############################################################################
 
     # while loop to check if the game is still in play or if the player has lost
-
     while not gameOver:
         # codes to keep track of the status of the game
 
@@ -209,6 +220,8 @@ def game_loop():
                     boost_change = 2
                     x_change_blahaj = step_back
 
+        ###################################################
+
         # update blahaj position
         if boost_meter == 0:
             x_change_blahaj = step_back
@@ -226,6 +239,9 @@ def game_loop():
             if blahaj_posY < 590:
                 blahaj_posY += y_change_blahaj
 
+        ###################################################
+
+
         # update boost position
         boost_meter += boost_change
         if boost_meter > 100:
@@ -240,6 +256,8 @@ def game_loop():
             score += 5
             score_count = 0
 
+        ###################################################
+
         # powerup spawning
 
 
@@ -252,11 +270,11 @@ def game_loop():
             point_item_posX = 1100
             point_item_posY = random.randint(60, 600)
             point_item_speed = random.randint(4, 9)
-            print("point spawned")
+            # print("point spawned")
 
         if point_item_onScreen:
             point_item_posX -= point_item_speed
-            print(point_item_posX)
+            # print(point_item_posX)
             if point_item_posX < -50:
                 point_item_onScreen = False
             elif (point_item_posY > blahaj_posY and point_item_posY < blahaj_posY + blahaj_height):
@@ -266,7 +284,15 @@ def game_loop():
                     score += 100
                     # print("point scored")
 
-        # based on the new positions of the characters in the game, check collisions
+        ###################################################
+
+        # static obstacle spawning
+
+
+
+        ###################################################
+
+        # trolley spawning
 
 
         # if there is a collision reducte the scores
