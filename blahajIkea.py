@@ -1,5 +1,5 @@
 ### blahaj at ikea game
-
+import math
 import random
 import pygame
 import time
@@ -33,6 +33,9 @@ power_blahaj_height = 110
 
 power_up_width = 50
 power_up_height = 38
+
+grabby_width = 43
+grabby_height = 100
 
 meatball_size = 30
 
@@ -106,6 +109,11 @@ def load_images():
     power_blahaj_Img = pygame.image.load('images/characters/Powerup.png')
     power_blahaj_Img = pygame.transform.scale(power_blahaj_Img, (power_blahaj_width, power_blahaj_height))
 
+    # grabby
+    global grabby_Img
+    grabby_Img = pygame.image.load('images/characters/GrabbyHand.png')
+    grabby_Img = pygame.transform.scale(grabby_Img, (grabby_width, grabby_height))
+
     # points and powerups
     global meatball_Img
     meatball_Img = pygame.image.load('images/characters/meatball1.png')
@@ -115,7 +123,7 @@ def load_images():
     powerup_item_Img = pygame.image.load('images/characters/PowerupIcon.png')
     powerup_item_Img = pygame.transform.scale(powerup_item_Img, (power_up_width, power_up_height))
 
-    # add images
+    # add level images
     for level in range(0, total_levels):
         bg_imgs.append(pygame.image.load(bg_img_paths[level]))
         bg_imgs[level] = pygame.transform.scale(bg_imgs[level],
@@ -249,6 +257,12 @@ def game_loop():
     powerup_min_time = 500
     powerup_max_time = 1000
 
+    grabby_lunge_min_time = 270
+    grabby_lunge_max_time = 390
+
+    grabby_forward_mim_time = 50
+    grabby_forward_max_time = 90
+
     point_min_time = 100
     point_max_time = 400
 
@@ -271,8 +285,22 @@ def game_loop():
     y_change_blahaj = 0
 
     ## calculate starting position for the grabby hand (to be modified)
-    grabby_postY = 0
     grabby_posX = 0
+    grabby_posY = int(display_height * 0.425) - (grabby_height - blahaj_height)/2
+
+    # for grabby to lunge
+    grabby_lunge_wait = random.randint(grabby_lunge_min_time, grabby_lunge_max_time)
+    grabby_lunge_next = 0
+    grabby_lunge_now = False
+    grabby_lunge_timer = 10
+
+    grabby_speed = 3
+
+    # to allow grabby to move foward else drift backwards
+    grabby_forward_timer = 10
+    grabby_forward_next = 0
+    grabby_forward_wait = random.randint(grabby_forward_mim_time, grabby_forward_max_time)
+    grabby_forward_now = False
 
     ############################################################################
 
@@ -331,6 +359,8 @@ def game_loop():
 
     boost_meter = 100
     boost_change = 2
+    boost_drop_count = 0
+    boost_refill = False
 
     gameOver = False
     win = False
@@ -383,7 +413,7 @@ def game_loop():
             x_change_blahaj = step_back
 
         if x_change_blahaj < 0:
-            if blahaj_posX > 100:
+            if blahaj_posX > 0:
                 blahaj_posX += x_change_blahaj
         else:
             if blahaj_posX < 930:
@@ -396,10 +426,20 @@ def game_loop():
             if blahaj_posY < 590:
                 blahaj_posY += y_change_blahaj
 
-
         ###################################################
 
         # update boost position
+        if collision_proof > 0:
+            boost_drop_count += 1
+
+        if boost_drop_count > 5:
+            boost_drop_count = 0
+            boost_change -= 1
+
+        if boost_refill:
+            boost_change += 10
+            boost_refill = False
+
         boost_meter += boost_change
         if boost_meter > 100:
             boost_meter = 100
@@ -498,7 +538,77 @@ def game_loop():
                 next_point_count = 0
                 point_item_onScreen = False
                 score += 100
+                boost_refill = True
                 # print("point collected")
+
+        ###################################################
+
+        ## update grabby position
+        # lunge timer countdown
+        if grabby_lunge_now:
+            grabby_lunge_timer -= 1
+
+        if grabby_lunge_timer == 0:
+            grabby_lunge_now = False
+
+        # check if lunge
+        grabby_lunge_next += 1
+        if grabby_lunge_next == grabby_lunge_wait:
+            grabby_lunge_next = 0
+            grabby_lunge_wait = random.randint(grabby_lunge_min_time, grabby_lunge_max_time)
+            grabby_lunge_now = True
+            grabby_lunge_timer = random.randint(22, 33)
+
+        # fowward timer countdown
+        if grabby_forward_now:
+            grabby_forward_timer -= 1
+
+        if grabby_forward_timer == 0:
+            grabby_forward_now = False
+
+        # check if forward
+        grabby_forward_next += 1
+        if grabby_forward_next == grabby_forward_wait:
+            grabby_forward_next = 0
+            grabby_forward_wait = random.randint(grabby_forward_mim_time, grabby_forward_max_time)
+            grabby_forward_now = True
+            grabby_forward_timer = random.randint(18, 25)
+
+        # calculate distance between blahaj and grabby
+        grabby_center_coords = [grabby_posX + grabby_width * 0.5, grabby_posY + grabby_height * 0.5]
+        blahaj_center_coords = [blahaj_posX + blahaj_width * 0.5, blahaj_posY + blahaj_height * 0.5]
+        dist_from_grabby = math.sqrt((grabby_center_coords[0]-blahaj_center_coords[0])**2 +
+                                     (grabby_center_coords[1]-blahaj_center_coords[1])**2)
+
+        grabby_speed = 7 if grabby_lunge_now else 3
+
+        if dist_from_grabby == 0:
+            scaled_dist_ratio = 1
+        else:
+            scaled_dist_ratio = grabby_speed / dist_from_grabby
+
+        if grabby_forward_now or grabby_lunge_now:
+            grabby_posX += scaled_dist_ratio * (blahaj_center_coords[0] - grabby_center_coords[0])
+        else:
+            grabby_posX -= 2 # drift backwards
+
+        grabby_posY += scaled_dist_ratio * (blahaj_center_coords[1] - grabby_center_coords[1])
+
+        if grabby_posX < 0:
+            grabby_posX = 0
+
+
+        # check grabby collisions
+        if damagable \
+                and not top_obstacle_posY + top_height[level] < blahaj_posY + 10 \
+                and not top_obstacle_posY > blahaj_posY + blahaj_height - 20 \
+                and not top_obstacle_posX + top_width[level] < blahaj_posX + 10\
+                and not top_obstacle_posX > blahaj_posX + blahaj_width - 10:
+            # gameOver = True
+            # win = False
+            # play lose sound
+            score -= 100
+
 
         ###################################################
 
@@ -569,7 +679,7 @@ def game_loop():
         # if lose condition end the gameloop
 
 
-        if not win:
+        if not gameOver:
 
             # note item rendered first get rendered in behind
 
@@ -584,6 +694,8 @@ def game_loop():
                         (collision_proof > 0 and
                          (collision_proof % 5 == 0 or collision_proof % 5 == 1)):
                     gameDisplay.blit(blahaj_Img, (blahaj_posX, blahaj_posY))
+
+            gameDisplay.blit(grabby_Img, (grabby_posX, grabby_posY))
 
             # render point and powerup objects
             if point_item_onScreen:
@@ -612,6 +724,14 @@ def game_loop():
             scoreRender(score)
             damagable_indicator_render(collision_proof, invincibility, damagable)
             dist_travel_bar(dist_travelled)
+
+        else:
+            if win:
+                # show win screen
+                pass
+            else:
+                # show lose
+                pass
 
         pygame.display.update()
         clock.tick(60)
