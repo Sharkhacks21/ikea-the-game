@@ -28,6 +28,12 @@ yellow = (240, 240, 89)
 blahaj_width = 163
 blahaj_height = 93
 
+power_blahaj_width = 112
+power_blahaj_height = 110
+
+power_up_width = 50
+power_up_height = 38
+
 meatball_size = 30
 
 total_levels = 1
@@ -95,11 +101,19 @@ def load_images():
     blahaj_Img = pygame.image.load('images/characters/blahajSwim.png')
     blahaj_Img = pygame.transform.scale(blahaj_Img, (blahaj_width, blahaj_height))
 
+    # blahaj with power up
+    global power_blahaj_Img
+    power_blahaj_Img = pygame.image.load('images/characters/Powerup.png')
+    power_blahaj_Img = pygame.transform.scale(power_blahaj_Img, (power_blahaj_width, power_blahaj_height))
+
     # points and powerups
     global meatball_Img
     meatball_Img = pygame.image.load('images/characters/meatball1.png')
     meatball_Img = pygame.transform.scale(meatball_Img, (meatball_size, meatball_size))
 
+    global powerup_item_Img
+    powerup_item_Img = pygame.image.load('images/characters/PowerupIcon.png')
+    powerup_item_Img = pygame.transform.scale(powerup_item_Img, (power_up_width, power_up_height))
 
     # add images
     for level in range(0, total_levels):
@@ -244,6 +258,7 @@ def game_loop():
     obstacle_speed = 4
 
     collision_cooldown = 50
+    invincibility_duration = 300
 
     ############################################################################
 
@@ -309,6 +324,8 @@ def game_loop():
     dist_travelled = 0
     dist_count = 0
 
+    time_bonus = 0
+
     score = 0
     score_count = 0
 
@@ -364,6 +381,7 @@ def game_loop():
         # update blahaj position
         if boost_meter == 0:
             x_change_blahaj = step_back
+
         if x_change_blahaj < 0:
             if blahaj_posX > 100:
                 blahaj_posX += x_change_blahaj
@@ -403,6 +421,7 @@ def game_loop():
         if dist_count // 10:
             dist_count = dist_count % 10
             dist_travelled += 1
+            time_bonus += 5
 
         bg_posX = ((level_distance - dist_travelled) / level_distance - 1) * (bg_width[level] - display_width)
 
@@ -417,7 +436,42 @@ def game_loop():
         ###################################################
 
         # powerup spawning
+        next_powerup_count += 1
+        if next_powerup_count == next_powerup_wait and not powerup_item_onScreen:
+            next_powerup_count = 0
+            next_powerup_wait = random.randint(powerup_min_time, powerup_max_time)
+            powerup_item_onScreen = True
+            powerup_item_posX = 1100
+            powerup_item_posY = random.randint(60, 600)
+            powerup_item_speed = random.randint(4, 9)
+            # print("powerup object spawned", powerup_item_posX, powerup_item_posY)
 
+        if powerup_item_onScreen:
+            powerup_item_posX -= powerup_item_speed
+            if powerup_item_posX < -50:
+                powerup_item_onScreen = False
+                next_powerup_count = 0
+                # print("powerup despawn")
+            elif invincibility == 0  \
+                    and not powerup_item_posY > blahaj_posY + blahaj_height \
+                    and not powerup_item_posY + meatball_size < blahaj_posY + 10 \
+                    and not powerup_item_posX + meatball_size < blahaj_posX \
+                    and not powerup_item_posX > blahaj_posX + blahaj_width:
+                next_powerup_count = 0
+                powerup_item_onScreen = False
+                score += 100
+                invincibility = invincibility_duration
+                # print("powerup collected")
+            elif invincibility > 0 \
+                    and not powerup_item_posY > blahaj_posY + power_blahaj_height \
+                    and not powerup_item_posY + meatball_size < blahaj_posY + 10 \
+                    and not powerup_item_posX + meatball_size < blahaj_posX \
+                    and not powerup_item_posX > blahaj_posX + power_blahaj_width:
+                next_powerup_count = 0
+                powerup_item_onScreen = False
+                score += 100
+                invincibility = invincibility_duration
+                # print("powerup collected")
 
 
         # point spawning
@@ -509,6 +563,8 @@ def game_loop():
         if dist_travelled > level_distance:
             dist_travelled = 0
             # level += 1
+            score += time_bonus
+            time_bonus = 0
 
         # if lose condition end the gameloop
 
@@ -521,11 +577,20 @@ def game_loop():
             gameDisplay.blit(bg_imgs[level], (bg_posX, 0))
 
             # render blahaj
-            gameDisplay.blit(blahaj_Img, (blahaj_posX, blahaj_posY))
+            if invincibility > 0:
+                gameDisplay.blit(power_blahaj_Img, (blahaj_posX, blahaj_posY))
+            else:
+                if collision_proof == 0 or \
+                        (collision_proof > 0 and
+                         (collision_proof % 5 == 0 or collision_proof % 5 == 1)):
+                    gameDisplay.blit(blahaj_Img, (blahaj_posX, blahaj_posY))
 
             # render point and powerup objects
             if point_item_onScreen:
                 gameDisplay.blit(meatball_Img, (point_item_posX, point_item_posY))
+
+            if powerup_item_onScreen:
+                gameDisplay.blit(powerup_item_Img, (powerup_item_posX, powerup_item_posY))
 
 
             # render obstacles
