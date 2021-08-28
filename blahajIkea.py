@@ -15,7 +15,8 @@ blahaj_speed = 5
 
 # set colour values arrrays
 black = (0, 0, 0)
-gray = (50, 50, 50)
+dark_gray = (50, 50, 50)
+gray = (130, 130, 130)
 light_gray = (180, 180, 180)
 white = (255, 255, 255)
 red = (240, 91, 74)
@@ -31,6 +32,8 @@ meatball_size = 30
 
 total_levels = 1
 
+level_distance = 500
+
 """
 # Areas in order
 0 - Childrens area
@@ -40,23 +43,27 @@ total_levels = 1
 
 ### obstacle sizes
 top_width = [
-    187
+    155
 ]
 top_height = [
-    203
+    169
 ]
 
 bottom_width = [
-    160
+    160,
+    144
 ]
 bottom_height = [
-    160
+    160,
+    177
 ]
 bg_width = [
-    1960
+    1960,
+    2100
 ]
 bg_height = [
-    980
+    980,
+    1190
 ]
 
 # arrays for the level images (init empty)
@@ -66,13 +73,16 @@ bg_imgs = []
 
 # image file paths
 bg_img_paths = [
-    'images/Children\'s Area/Children\'s Area BG.jpg'
+    'images/Children\'s Area/Children\'s Area BG.jpg',
+    'images/Bedroom/BedroomBG.jpg'
 ]
 top_img_paths = [
-    'images/Children\'s Area/Children\'s Area top obs.png'
+    'images/Children\'s Area/Children\'s Area top obs.png',
+    'images/Bedroom/BedroomTopObs.png'
 ]
 bottom_img_paths = [
-    'images/Children\'s Area/Children\'s Area bottom obs.png'
+    'images/Children\'s Area/Children\'s Area bottom obs.png',
+    'images/Bedroom/BedroomBottomObs.png'
 ]
 #################################################################
 
@@ -87,8 +97,9 @@ def load_images():
 
     # points and powerups
     global meatball_Img
-    meatball_Img = pygame.image.load('images/meatball1.jpg')
+    meatball_Img = pygame.image.load('images/meatball1.png')
     meatball_Img = pygame.transform.scale(meatball_Img, (meatball_size, meatball_size))
+
 
     # add images
     for level in range(0, total_levels):
@@ -106,6 +117,10 @@ def load_images():
                                                              (bottom_width[level], bottom_height[level])
                                                              )
 
+    global miniBlahaj_Img
+    miniBlahaj_Img = pygame.image.load('images/mini_blahaj.png')
+    miniBlahaj_Img = pygame.transform.scale(miniBlahaj_Img, (30, 30))
+
 
 def text_objects(text, font):
     # render text objects
@@ -122,7 +137,7 @@ def boost_render(boost_val):
     else:
         color = red
 
-    bar_posX = 90
+    bar_posX = 70
     bar_posY = 10
     bar_height = 30
 
@@ -130,7 +145,7 @@ def boost_render(boost_val):
                                                                         bar_posY - 2,
                                                                         100 + 4,
                                                                         bar_height + 4))
-    boost_bar_bg = pygame.draw.rect(gameDisplay, gray, pygame.Rect(bar_posX, bar_posY, 100, bar_height))
+    boost_bar_bg = pygame.draw.rect(gameDisplay, dark_gray, pygame.Rect(bar_posX, bar_posY, 100, bar_height))
     boost_bar = pygame.draw.rect(gameDisplay, color, pygame.Rect(bar_posX, bar_posY, boost_val, bar_height))
 
 
@@ -138,7 +153,7 @@ def boost_render(boost_val):
     text_font = pygame.font.Font('freesansbold.ttf', 20)
     text_obj = text_font.render("Boost", True, black)
     text_rect = text_obj.get_rect()
-    text_rect.center = (50, 25)
+    text_rect.center = (35, 25)
 
     gameDisplay.blit(text_obj, text_rect)
 
@@ -146,16 +161,16 @@ def boost_render(boost_val):
 def scoreRender(score):
     # add label in front [boost]
     text_font = pygame.font.Font('freesansbold.ttf', 20)
-    text_obj = text_font.render("Score", True, black)
+    text_obj = text_font.render("Score:", True, black)
     text_rect = text_obj.get_rect()
-    text_rect.center = (960, 25)
+    text_rect.center = (970, 25)
 
     gameDisplay.blit(text_obj, text_rect)
 
     text_font = pygame.font.Font('freesansbold.ttf', 20)
     text_obj = text_font.render(str(score), True, black)
     text_rect = text_obj.get_rect()
-    text_rect.center = (1040, 25)
+    text_rect.center = (1050, 25)
 
     gameDisplay.blit(text_obj, text_rect)
 
@@ -180,13 +195,37 @@ def damagable_indicator_render(collision_proof, invincibility, damagable):
 
     gameDisplay.blit(text_obj, text_rect)
 
+
 def dist_travel_bar(dist_travelled):
     # replace with icon travel
+    bar_posX = 300
+    bar_posY = 10
+
+    pygame.draw.rect(gameDisplay, gray, pygame.Rect(bar_posX, bar_posY + 15, 350, 3))
+    pygame.draw.rect(gameDisplay, gray, pygame.Rect(bar_posX, bar_posY, 3, 30))
+    pygame.draw.rect(gameDisplay, gray, pygame.Rect(bar_posX + 347, bar_posY, 3, 30))
+
+    gameDisplay.blit(miniBlahaj_Img, (bar_posX + dist_travelled/level_distance * 320, bar_posY))
 
     text_font = pygame.font.Font('freesansbold.ttf', 20)
-    text_obj = text_font.render(str(dist_travelled), True, black)
+    text_obj = text_font.render(str(level_distance - dist_travelled), True, black)
     text_rect = text_obj.get_rect()
-    text_rect.center = (800, 25)
+    text_rect.center = (bar_posX + 370, 25)
+
+    gameDisplay.blit(text_obj, text_rect)
+
+    text_font = pygame.font.Font('freesansbold.ttf', 20)
+    text_obj = text_font.render("m remaning", True, black)
+    text_rect = text_obj.get_rect()
+    text_rect.center = (bar_posX + 450, 25)
+
+    gameDisplay.blit(text_obj, text_rect)
+
+def level_num_render(level):
+    text_font = pygame.font.Font('freesansbold.ttf', 20)
+    text_obj = text_font.render("level: " + str(level + 1), True, black)
+    text_rect = text_obj.get_rect()
+    text_rect.center = (220, 25)
 
     gameDisplay.blit(text_obj, text_rect)
 
@@ -200,7 +239,7 @@ def game_loop():
     point_max_time = 400
 
     obstacle_min_time = 50
-    obstacle_max_time = 300
+    obstacle_max_time = 200
 
     obstacle_speed = 4
 
@@ -256,13 +295,11 @@ def game_loop():
     top_obstacle_wait = random.randint(obstacle_min_time, obstacle_max_time)
     top_obstacle_next = 0
 
-
     bottom_obstacle_posX = 0
     bottom_obstacle_posY = 0
     bottom_obstacle_onScreen = False
     bottom_obstacle_wait = random.randint(obstacle_min_time, obstacle_max_time)
     bottom_obstacle_next = 0
-
 
     print(bottom_obstacle_wait, top_obstacle_wait)
 
@@ -274,7 +311,6 @@ def game_loop():
 
     score = 0
     score_count = 0
-    dist_from_hand = 0
 
     boost_meter = 100
     boost_change = 2
@@ -284,10 +320,11 @@ def game_loop():
 
     level = 0
 
+    bg_posX = 0
+
     invincibility = 0
     collision_proof = 0
 
-    damagable = True
 
     ############################################################################
 
@@ -361,12 +398,13 @@ def game_loop():
         # distance
         dist_count += 2
         if boost_change < 0 and boost_meter != 0:
-            dist_count += 1
+            dist_count += 2
 
         if dist_count // 10:
             dist_count = dist_count % 10
             dist_travelled += 1
 
+        bg_posX = ((level_distance - dist_travelled) / level_distance - 1) * (bg_width[level] - display_width)
 
         if invincibility != 0:
             invincibility -= 1
@@ -437,9 +475,9 @@ def game_loop():
                 top_obstacle_next = 0
             elif damagable \
                     and not top_obstacle_posY + top_height[level] < blahaj_posY + 10 \
-                    and not top_obstacle_posY > blahaj_posY + blahaj_height \
-                    and not top_obstacle_posX + top_width[level] < blahaj_posX \
-                    and not top_obstacle_posX > blahaj_posX + blahaj_width:
+                    and not top_obstacle_posY > blahaj_posY + blahaj_height - 20 \
+                    and not top_obstacle_posX + top_width[level] < blahaj_posX + 10\
+                    and not top_obstacle_posX > blahaj_posX + blahaj_width - 10:
                 collision_proof = collision_cooldown
                 score -= 100
 
@@ -450,9 +488,9 @@ def game_loop():
                 bottom_obstacle_next = 0
             elif damagable \
                     and not bottom_obstacle_posY + bottom_height[level] < blahaj_posY + 10 \
-                    and not bottom_obstacle_posY > blahaj_posY + blahaj_height \
-                    and not bottom_obstacle_posX + bottom_width[level] < blahaj_posX \
-                    and not bottom_obstacle_posX > blahaj_posX + blahaj_width:
+                    and not bottom_obstacle_posY > blahaj_posY + blahaj_height - 20 \
+                    and not bottom_obstacle_posX + bottom_width[level] < blahaj_posX + 10 \
+                    and not bottom_obstacle_posX > blahaj_posX + blahaj_width - 10 :
                 collision_proof = collision_cooldown
                 score -= 100
 
@@ -465,17 +503,22 @@ def game_loop():
 
         ############################################################################
 
+        score = score if score > 0 else score = 0
 
         # check if distance has been reached (to check for transition to next scene)
+        if dist_travelled > level_distance:
+            dist_travelled = 0
+            # level += 1
 
         # if lose condition end the gameloop
+
 
         if not win:
 
             # note item rendered first get rendered in behind
 
             # render bg
-            gameDisplay.blit(bg_imgs[level], (0, 0))
+            gameDisplay.blit(bg_imgs[level], (bg_posX, 0))
 
             # render blahaj
             gameDisplay.blit(blahaj_Img, (blahaj_posX, blahaj_posY))
@@ -499,13 +542,13 @@ def game_loop():
             # render header labels
             header_render()
             boost_render(boost_meter)
+            level_num_render(level)
             scoreRender(score)
             damagable_indicator_render(collision_proof, invincibility, damagable)
             dist_travel_bar(dist_travelled)
 
         pygame.display.update()
         clock.tick(60)
-
 
 
 
