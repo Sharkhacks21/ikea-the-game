@@ -37,6 +37,9 @@ power_up_height = 38
 grabby_width = 43
 grabby_height = 100
 
+trolley_width = 114
+trolley_height = 120
+
 meatball_size = 30
 
 total_levels = 1
@@ -122,6 +125,12 @@ def load_images():
     global powerup_item_Img
     powerup_item_Img = pygame.image.load('images/characters/PowerupIcon.png')
     powerup_item_Img = pygame.transform.scale(powerup_item_Img, (power_up_width, power_up_height))
+
+    # trolley image
+    global trolley_Img
+    trolley_Img = pygame.image.load('images/characters/Trolley.png')
+    trolley_Img = pygame.transform.scale(trolley_Img, (trolley_width, trolley_height))
+
 
     # add level images
     for level in range(0, total_levels):
@@ -257,8 +266,8 @@ def game_loop():
     powerup_min_time = 500
     powerup_max_time = 1000
 
-    grabby_lunge_min_time = 270
-    grabby_lunge_max_time = 390
+    grabby_lunge_min_time = 300
+    grabby_lunge_max_time = 400
 
     grabby_forward_mim_time = 50
     grabby_forward_max_time = 90
@@ -270,6 +279,9 @@ def game_loop():
     obstacle_max_time = 200
 
     obstacle_speed = 4
+
+    trolley_min_time = 200
+    trolley_max_time = 500
 
     collision_cooldown = 50
     invincibility_duration = 300
@@ -325,10 +337,15 @@ def game_loop():
     ## moving trolley obstacle
     trolley_posX = 0
     trolley_posY = -100
-    trolley_speed = 0
-    top_obstacle_onScreen = False
-    top_obstacle_next = random.randint(point_min_time, point_max_time)
-    top_obstacle_wait = 0
+    trolley_destX = 0
+    trolley_destY = 0
+    trolley_speed = random.randint(3, 7)
+    trolley_onScreen = False
+    trolley_next = 0
+    trolley_wait = random.randint(trolley_min_time, trolley_max_time)
+
+    trolley_X_positive = True
+    trolley_Y_positive = True
 
     ############################################################################
     # track the top and bottom obstacle spawning
@@ -661,9 +678,47 @@ def game_loop():
         ###################################################
 
         # trolley spawning
+        trolley_next += 1
+        if trolley_next == trolley_wait and not trolley_onScreen:
+            trolley_next = 0
+            trolley_wait = random.randint(obstacle_min_time, obstacle_max_time)
+            trolley_onScreen = True
+            trolley_speed = random.randint(3, 6)
+            trolley_posX = random.randint(0, display_width - trolley_width)
+            trolley_posY = random.choice([-101, 701])
+            trolley_destX = random.randint(0, display_width - trolley_width)
+            trolley_destY = -101 if trolley_posY == 701 else 701
+            print("trolley spawned!")
 
+            trolley_X_positive = (trolley_destX - trolley_posX) > 0 # going right
+            trolley_Y_positive = (trolley_destY - trolley_posY) > 0 # going down
+
+        print(trolley_next)
 
         # collision checking
+        if trolley_onScreen:
+            if trolley_X_positive:
+                trolley_posX += trolley_speed
+            else:
+                trolley_posX -= trolley_speed
+
+            if trolley_Y_positive:
+                trolley_posY += trolley_speed
+            else:
+                trolley_posY -= trolley_speed
+
+            if (not trolley_Y_positive and trolley_posY < -trolley_height)\
+                    or (trolley_Y_positive and trolley_posY > 700 + trolley_height):
+                trolley_onScreen = False
+                trolley_next = 0
+            elif damagable \
+                    and not trolley_posY + bottom_height[level] < blahaj_posY + 10 \
+                    and not trolley_posY > blahaj_posY + blahaj_height - 20 \
+                    and not trolley_posX + bottom_width[level] < blahaj_posX + 10 \
+                    and not trolley_posX > blahaj_posX + blahaj_width - 10:
+                collision_proof = collision_cooldown
+                score -= 100
+
 
         ############################################################################
 
@@ -677,7 +732,6 @@ def game_loop():
             time_bonus = 0
 
         # if lose condition end the gameloop
-
 
         if not gameOver:
 
@@ -704,11 +758,12 @@ def game_loop():
             if powerup_item_onScreen:
                 gameDisplay.blit(powerup_item_Img, (powerup_item_posX, powerup_item_posY))
 
-
             # render obstacles
             if top_obstacle_onScreen:
                 gameDisplay.blit(obstacle_top_imgs[level], (top_obstacle_posX, top_obstacle_posY))
 
+            if trolley_onScreen:
+                gameDisplay.blit(trolley_Img, (trolley_posX, trolley_posY))
 
             if bottom_obstacle_onScreen:
                 gameDisplay.blit(obstacle_bottom_imgs[level], (bottom_obstacle_posX, bottom_obstacle_posY))
