@@ -1,19 +1,17 @@
 import blahajIkea
 import highScore
+import homeScreen
 
-# while True:
-#     # show home screen
-#     # home screen returns a value
-#
-#     # if home screen select is game, run the blahaj game
-#         # blahajIkea.runBlahajGame()
-#
-#     # if home screen select is high scores, run high score screen
-#
-#     pass
+while True:
+    # show home screen
+    # home screen returns a value
+    game_selected = homeScreen.run_homescreen()
 
-# opens the blahaj game window
-blahajIkea.runBlahajGame()
+    # if home screen select is game, run the blahaj game
+    # opens the blahaj game window
+    if game_selected:
+        blahajIkea.runBlahajGame()
 
-yeah = input("say yeah:\n")
-print(yeah)
+    # if home screen select is high scores, run high score screen
+
+    pass

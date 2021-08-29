@@ -218,6 +218,8 @@ def scoreRender(score):
 
     gameDisplay.blit(text_obj, text_rect)
 
+    pygame.draw.rect(gameDisplay, gray, pygame.Rect(1005, 10, 90, 33))
+
     text_font = pygame.font.Font('freesansbold.ttf', 20)
     text_obj = text_font.render(str(score), True, black)
     text_rect = text_obj.get_rect()
@@ -286,8 +288,8 @@ def game_loop():
     powerup_min_time = 500
     powerup_max_time = 1000
 
-    grabby_lunge_min_time = 290
-    grabby_lunge_max_time = 400
+    grabby_lunge_min_time = 300
+    grabby_lunge_max_time = 430
 
     grabby_forward_mim_time = 50
     grabby_forward_max_time = 90
