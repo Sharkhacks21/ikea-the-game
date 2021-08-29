@@ -47,7 +47,7 @@ meatball_size = 30
 
 total_levels = 4
 
-level_distance = 50
+level_distance = 100
 
 """
 # Areas in order
@@ -127,7 +127,7 @@ bottom_img_paths = [
 replay = False
 
 # initialize pygame.mixer
-pygame.mixer.init(frequency = 44100, size = -16, channels = 1, buffer = 2**12)
+pygame.mixer.init(frequency=44100, size=-16, channels=1, buffer=2 ** 12)
 # init() channels refers to mono vs stereo, not playback Channel object
 
 ## create separate Channel objects for simultaneous playback
@@ -136,11 +136,11 @@ channel1 = pygame.mixer.Channel(0)
 # bgm channel
 channel2 = pygame.mixer.Channel(1)
 
+
 #################################################################
 
 # function that is called from main to open the window for the game
 def load_images():
-
     # blahaj
     global blahaj_Img
     blahaj_Img = pygame.image.load('images/characters/blahajSwim.png')
@@ -174,13 +174,12 @@ def load_images():
     trolley_left_Img = pygame.image.load('images/characters/Trolley_left.png')
     trolley_left_Img = pygame.transform.scale(trolley_left_Img, (trolley_width, trolley_height))
 
-
     # add level images
     for level in range(0, total_levels):
         bg_imgs.append(pygame.image.load(bg_img_paths[level]))
         bg_imgs[level] = pygame.transform.scale(bg_imgs[level],
-                                                          (bg_width[level], bg_height[level])
-                                                          )
+                                                (bg_width[level], bg_height[level])
+                                                )
         obstacle_top_imgs.append(pygame.image.load(top_img_paths[level]))
         obstacle_top_imgs[level] = pygame.transform.scale(obstacle_top_imgs[level],
                                                           (top_width[level], top_height[level])
@@ -215,6 +214,7 @@ def load_images():
     win_logo_Img = pygame.image.load('images/WinLogo.png')
     win_logo_Img = pygame.transform.scale(win_logo_Img, (287, 281))
 
+
 def text_objects(text, font):
     # render text objects
     textSurface = font.render(text, True, black)
@@ -235,12 +235,11 @@ def boost_render(boost_val):
     bar_height = 30
 
     boost_bar_outline = pygame.draw.rect(gameDisplay, black, pygame.Rect(bar_posX - 2,
-                                                                        bar_posY - 2,
-                                                                        100 + 4,
-                                                                        bar_height + 4))
+                                                                         bar_posY - 2,
+                                                                         100 + 4,
+                                                                         bar_height + 4))
     boost_bar_bg = pygame.draw.rect(gameDisplay, dark_gray, pygame.Rect(bar_posX, bar_posY, 100, bar_height))
     boost_bar = pygame.draw.rect(gameDisplay, color, pygame.Rect(bar_posX, bar_posY, boost_val, bar_height))
-
 
     # add label in front [boost]
     text_font = pygame.font.Font('freesansbold.ttf', 20)
@@ -271,6 +270,7 @@ def load_sounds():
 
     global win_sound
     win_sound = pygame.mixer.Sound("audio/winSound.mp3")
+
 
 def scoreRender(score):
     # add label in front [boost]
@@ -321,7 +321,7 @@ def dist_travel_bar(dist_travelled):
     pygame.draw.rect(gameDisplay, gray, pygame.Rect(bar_posX, bar_posY, 3, 30))
     pygame.draw.rect(gameDisplay, gray, pygame.Rect(bar_posX + 347, bar_posY, 3, 30))
 
-    gameDisplay.blit(miniBlahaj_Img, (bar_posX + dist_travelled/level_distance * 320, bar_posY))
+    gameDisplay.blit(miniBlahaj_Img, (bar_posX + dist_travelled / level_distance * 320, bar_posY))
 
     text_font = pygame.font.Font('freesansbold.ttf', 20)
     text_obj = text_font.render(str(level_distance - dist_travelled), True, black)
@@ -337,6 +337,7 @@ def dist_travel_bar(dist_travelled):
 
     gameDisplay.blit(text_obj, text_rect)
 
+
 def level_num_render(level):
     text_font = pygame.font.Font('freesansbold.ttf', 20)
     text_obj = text_font.render("level: " + str(level + 1), True, black)
@@ -344,6 +345,7 @@ def level_num_render(level):
     text_rect.center = (220, 25)
 
     gameDisplay.blit(text_obj, text_rect)
+
 
 def countdown_text(i):
     text_font = pygame.font.Font('freesansbold.ttf', 20)
@@ -381,6 +383,7 @@ def countdown_text(i):
         text_rect.center = (display_width / 2, display_height / 2 + 200)
 
         gameDisplay.blit(text_obj, text_rect)
+
 
 def countdown_loop():
     countdown = list(range(0, 6))[::-1]
@@ -432,7 +435,7 @@ def game_loop():
 
     ## calculate starting position for the grabby hand (to be modified)
     grabby_posX = 0
-    grabby_posY = int(display_height * 0.425) - (grabby_height - blahaj_height)/2
+    grabby_posY = int(display_height * 0.425) - (grabby_height - blahaj_height) / 2
 
     # for grabby to lunge
     grabby_lunge_wait = random.randint(grabby_lunge_min_time, grabby_lunge_max_time)
@@ -618,7 +621,6 @@ def game_loop():
 
         damagable = not (invincibility > 0 or collision_proof > 0)
 
-
         ###################################################
 
         # powerup spawning
@@ -638,7 +640,7 @@ def game_loop():
                 powerup_item_onScreen = False
                 next_powerup_count = 0
                 # print("powerup despawn")
-            elif invincibility == 0  \
+            elif invincibility == 0 \
                     and not powerup_item_posY > blahaj_posY + blahaj_height \
                     and not powerup_item_posY + meatball_size < blahaj_posY + 10 \
                     and not powerup_item_posX + meatball_size < blahaj_posX \
@@ -712,8 +714,8 @@ def game_loop():
         # calculate distance between blahaj and grabby
         grabby_center_coords = [grabby_posX + grabby_width * 0.5, grabby_posY + grabby_height * 0.5]
         blahaj_center_coords = [blahaj_posX + blahaj_width * 0.5, blahaj_posY + blahaj_height * 0.5]
-        dist_from_grabby = math.sqrt((grabby_center_coords[0]-blahaj_center_coords[0])**2 +
-                                     (grabby_center_coords[1]-blahaj_center_coords[1])**2)
+        dist_from_grabby = math.sqrt((grabby_center_coords[0] - blahaj_center_coords[0]) ** 2 +
+                                     (grabby_center_coords[1] - blahaj_center_coords[1]) ** 2)
 
         grabby_speed = 7 if grabby_lunge_now else 3
 
@@ -725,7 +727,7 @@ def game_loop():
         if grabby_forward_now or grabby_lunge_now:
             grabby_posX += scaled_dist_ratio * (blahaj_center_coords[0] - grabby_center_coords[0])
         else:
-            grabby_posX -= 2 # drift backwards
+            grabby_posX -= 2  # drift backwards
 
         grabby_posY += scaled_dist_ratio * (blahaj_center_coords[1] - grabby_center_coords[1])
 
@@ -742,7 +744,6 @@ def game_loop():
             win = False
             score -= 100
 
-
         ###################################################
 
         # static obstacle spawning
@@ -754,7 +755,6 @@ def game_loop():
             top_obstacle_posX = 1100
             top_obstacle_posY = random.randint(60, 370 - top_height[level])
             # print("obstacle", top_obstacle_posX, top_obstacle_posY)
-
 
         bottom_obstacle_next += 1
         if bottom_obstacle_next == bottom_obstacle_wait and not bottom_obstacle_onScreen:
@@ -773,12 +773,11 @@ def game_loop():
             elif damagable \
                     and not top_obstacle_posY + top_height[level] < blahaj_posY + 10 \
                     and not top_obstacle_posY > blahaj_posY + blahaj_height - 20 \
-                    and not top_obstacle_posX + top_width[level] < blahaj_posX + 10\
+                    and not top_obstacle_posX + top_width[level] < blahaj_posX + 10 \
                     and not top_obstacle_posX > blahaj_posX + blahaj_width - 10:
                 collision_proof = collision_cooldown
                 score -= 100
                 channel1.play(col_sound)
-
 
         if bottom_obstacle_onScreen:
             bottom_obstacle_posX -= obstacle_speed
@@ -789,7 +788,7 @@ def game_loop():
                     and not bottom_obstacle_posY + bottom_height[level] < blahaj_posY + 10 \
                     and not bottom_obstacle_posY > blahaj_posY + blahaj_height - 20 \
                     and not bottom_obstacle_posX + bottom_width[level] < blahaj_posX + 10 \
-                    and not bottom_obstacle_posX > blahaj_posX + blahaj_width - 10 :
+                    and not bottom_obstacle_posX > blahaj_posX + blahaj_width - 10:
                 collision_proof = collision_cooldown
                 score -= 100
                 channel1.play(col_sound)
@@ -809,8 +808,8 @@ def game_loop():
             trolley_destY = -101 if trolley_posY == 701 else 701
             # print("trolley spawned!")
 
-            trolley_X_positive = (trolley_destX - trolley_posX) > 0 # going right
-            trolley_Y_positive = (trolley_destY - trolley_posY) > 0 # going down
+            trolley_X_positive = (trolley_destX - trolley_posX) > 0  # going right
+            trolley_Y_positive = (trolley_destY - trolley_posY) > 0  # going down
 
         # collision checking
         if trolley_onScreen:
@@ -824,7 +823,7 @@ def game_loop():
             else:
                 trolley_posY -= trolley_speed
 
-            if (not trolley_Y_positive and trolley_posY < -trolley_height)\
+            if (not trolley_Y_positive and trolley_posY < -trolley_height) \
                     or (trolley_Y_positive and trolley_posY > 700 + trolley_height):
                 trolley_onScreen = False
                 trolley_next = 0
@@ -836,8 +835,6 @@ def game_loop():
                 collision_proof = collision_cooldown
                 score -= 100
                 channel1.play(col_sound)
-
-
 
         ############################################################################
 
@@ -910,6 +907,7 @@ def game_loop():
 
         pygame.display.update()
         clock.tick(60)
+
 
 def win_screen_loop(score, highscore):
     # show win screen
@@ -1027,6 +1025,7 @@ def win_screen_loop(score, highscore):
 
     return replay, user_text
 
+
 def lose_screen_loop(score, highscore):
     # show lose
     user_text = "player"
@@ -1110,12 +1109,10 @@ def lose_screen_loop(score, highscore):
 
         ##################
 
-
         # render lose bg
         gameDisplay.blit(lose_bg_Img, (0, 0))
 
         ##################
-
 
         # draw rectangle and argument passed which should
         # be on screen
@@ -1151,15 +1148,17 @@ def lose_screen_loop(score, highscore):
 
     return replay, user_text
 
+
 def render_text(x, y, width, text, color):
     pygame.draw.rect(gameDisplay, color, pygame.Rect(x, y, width, button_height))
 
     text_font = pygame.font.Font('freesansbold.ttf', 20)
     text_obj = text_font.render(text, True, black)
     text_rect = text_obj.get_rect()
-    text_rect.center = (x + width/2, y + button_height/2)
+    text_rect.center = (x + width / 2, y + button_height / 2)
 
     gameDisplay.blit(text_obj, text_rect)
+
 
 def render_title(x, y, fontsize, text, color):
     text_font = pygame.font.Font('freesansbold.ttf', fontsize)
@@ -1168,6 +1167,7 @@ def render_title(x, y, fontsize, text, color):
     text_rect.center = (x, y)
 
     gameDisplay.blit(text_obj, text_rect)
+
 
 def runBlahajGame():
     ## Pygame segment
@@ -1220,7 +1220,7 @@ def runBlahajGame():
 
         new_df = pd.DataFrame(list([len(df), player_name, score]))
         df.append(new_df)
-        df.sort_values(by=['score'], ascending=False)
+        df.sort_values(by=['score'])
         print(df)
 
         df.to_excel("savedData/blahajData.xlsx", sheet_name="win")
