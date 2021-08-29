@@ -67,7 +67,7 @@ def homescreen_loop():
                 quit()
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                print(mouse_x, mouse_y)
+                print("click pos", mouse_x, mouse_y)
                 dist_new_game = math.sqrt((mouse_x - 175)**2 + (mouse_y - 175)**2)
                 dist_high_score = math.sqrt((mouse_x - 820)**2 + (mouse_y - 290)**2)
 

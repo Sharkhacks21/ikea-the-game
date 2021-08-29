@@ -113,6 +113,14 @@ bottom_img_paths = [
 
 replay = False
 
+# initialize pygame.mixer
+pygame.mixer.init(frequency = 44100, size = -16, channels = 1, buffer = 2**12)
+# init() channels refers to mono vs stereo, not playback Channel object
+
+# create separate Channel objects for simultaneous playback
+channel1 = pygame.mixer.Channel(0) # argument must be int
+channel2 = pygame.mixer.Channel(1)
+
 #################################################################
 
 # function that is called from main to open the window for the game
@@ -209,6 +217,22 @@ def boost_render(boost_val):
     gameDisplay.blit(text_obj, text_rect)
 
 
+def load_sounds():
+    global col_sound
+    col_sound = pygame.mixer.Sound("audio/collisionSound.mp3")
+
+    global powerup_sound
+    powerup_sound = pygame.mixer.Sound("audio/powerupSound.mp3")
+
+    global eat_sound
+    eat_sound = pygame.mixer.Sound("audio/eatingSound.mp3")
+
+    global lose_sound
+    lose_sound = pygame.mixer.Sound("audio/loseSound.mp3")
+
+    global win_sound
+    win_sound = pygame.mixer.Sound("audio/winSound.mp3")
+
 def scoreRender(score):
     # add label in front [boost]
     text_font = pygame.font.Font('freesansbold.ttf', 20)
@@ -281,6 +305,47 @@ def level_num_render(level):
     text_rect.center = (220, 25)
 
     gameDisplay.blit(text_obj, text_rect)
+
+def countdown_text(i):
+    text_font = pygame.font.Font('freesansbold.ttf', 20)
+    text_obj = text_font.render("use up down and left arrow keys to move", True, white)
+    text_rect = text_obj.get_rect()
+    text_rect.center = (display_width / 2, 200)
+
+    gameDisplay.blit(text_obj, text_rect)
+
+    text_font = pygame.font.Font('freesansbold.ttf', 20)
+    text_obj = text_font.render("collect meatballs and powerup files", True, white)
+    text_rect = text_obj.get_rect()
+    text_rect.center = (display_width / 2, 230)
+
+    gameDisplay.blit(text_obj, text_rect)
+
+    text_font = pygame.font.Font('freesansbold.ttf', 20)
+    text_obj = text_font.render("avoid obstacles", True, white)
+    text_rect = text_obj.get_rect()
+    text_rect.center = (display_width / 2, 260)
+
+    gameDisplay.blit(text_obj, text_rect)
+
+    text_font = pygame.font.Font('freesansbold.ttf', 100)
+    text_obj = text_font.render(str(i), True, white)
+    text_rect = text_obj.get_rect()
+    text_rect.center = (display_width / 2, display_height / 2 + 100)
+
+    gameDisplay.blit(text_obj, text_rect)
+
+def countdown_loop():
+    countdown = list(range(0, 4))[::-1]
+
+    for i in countdown:
+        gameDisplay.fill(black)
+
+        countdown_text(i)
+        print(i)
+
+        pygame.display.update()
+        pygame.time.wait(1000)
 
 
 def game_loop():
@@ -537,18 +602,7 @@ def game_loop():
                 powerup_item_onScreen = False
                 score += 100
                 invincibility = invincibility_duration
-                # print("powerup collected")
-            elif invincibility > 0 \
-                    and not powerup_item_posY > blahaj_posY + power_blahaj_height \
-                    and not powerup_item_posY + meatball_size < blahaj_posY + 10 \
-                    and not powerup_item_posX + meatball_size < blahaj_posX \
-                    and not powerup_item_posX > blahaj_posX + power_blahaj_width:
-                next_powerup_count = 0
-                powerup_item_onScreen = False
-                score += 100
-                invincibility = invincibility_duration
-                # print("powerup collected")
-
+                channel1.play(powerup_sound)
 
         # point spawning
         next_point_count += 1
@@ -575,7 +629,7 @@ def game_loop():
                 point_item_onScreen = False
                 score += 100
                 boost_refill = True
-                # print("point collected")
+                channel1.play(eat_sound)
 
         ###################################################
 
@@ -641,9 +695,7 @@ def game_loop():
                 and not grabby_posX > blahaj_posX + blahaj_width - 20:
             gameOver = True
             win = False
-            # play lose sound
             score -= 100
-            print("you lost!")
 
 
         ###################################################
@@ -680,6 +732,8 @@ def game_loop():
                     and not top_obstacle_posX > blahaj_posX + blahaj_width - 10:
                 collision_proof = collision_cooldown
                 score -= 100
+                channel1.play(col_sound)
+
 
         if bottom_obstacle_onScreen:
             bottom_obstacle_posX -= obstacle_speed
@@ -693,6 +747,7 @@ def game_loop():
                     and not bottom_obstacle_posX > blahaj_posX + blahaj_width - 10 :
                 collision_proof = collision_cooldown
                 score -= 100
+                channel1.play(col_sound)
 
         ###################################################
 
@@ -735,6 +790,8 @@ def game_loop():
                     and not trolley_posX > blahaj_posX + blahaj_width - 10:
                 collision_proof = collision_cooldown
                 score -= 100
+                channel1.play(col_sound)
+
 
 
         ############################################################################
@@ -802,9 +859,11 @@ def game_loop():
 
         else:
             if win:
+                channel1.play(win_sound)
                 # save as win
                 return win
             else:
+                channel1.play(lose_sound)
                 # save as lose
                 return win
 
@@ -850,6 +909,8 @@ def runBlahajGame():
     # load images
     load_images()
 
+    load_sounds()
+
     # set the window icon (top corner)
     global programIcon
     programIcon = pygame.image.load("images/characters/blahajIcon.jpg")
@@ -862,6 +923,7 @@ def runBlahajGame():
         # run game loop
         # if win run win screen
         # if lose run lose creen
+    countdown_loop()
     win = game_loop()
 
     # end the program if the game_loop is exited
