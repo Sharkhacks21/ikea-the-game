@@ -1,6 +1,4 @@
 ### the high score UI
-
-### the home screen ui
 import math
 import pandas as pd
 import pygame
@@ -22,11 +20,10 @@ green = (89, 240, 86)
 blue = (47, 235, 245)
 yellow = (240, 240, 89)
 
-bg_width = 1075
+bg_width = 700
 bg_height = 600
 
-cursor_width = 87
-cursor_height = 94
+meatball_size = 50
 
 button_width = 120
 button_height = 50
@@ -42,7 +39,7 @@ channel4 = pygame.mixer.Channel(4)
 def load_images():
 
     global highscore_bg_Img
-    highscore_bg_Img = pygame.image.load('images/homeScreen/kiddieRug1.png')
+    highscore_bg_Img = pygame.image.load('images/swedish-meatballs - Copy.png')
     highscore_bg_Img = pygame.transform.scale(highscore_bg_Img, (bg_width, bg_height))
 
     # global home_bg_Img2
@@ -50,8 +47,8 @@ def load_images():
     # home_bg_Img2 = pygame.transform.scale(home_bg_Img2, (bg_width, bg_height))
 
     global cursor_Img
-    cursor_Img = pygame.image.load('images/homeScreen/CarCursor.png')
-    cursor_Img = pygame.transform.scale(cursor_Img, (cursor_width, cursor_height))
+    cursor_Img = pygame.image.load('images/characters/meatball1.png')
+    cursor_Img = pygame.transform.scale(cursor_Img, (meatball_size, meatball_size))
 
 def render_text(x, y, width, text, color):
     pygame.draw.rect(gameDisplay, color, pygame.Rect(x, y, width, button_height))
@@ -97,8 +94,8 @@ def highscore_loop(player1, player2, player3, score1, score2, score3):
                     option_selected = True
 
 
-        # gameDisplay.blit(highscore_bg_Img, (0, 0))
-        gameDisplay.fill(white)
+        gameDisplay.blit(highscore_bg_Img, (0, 0))
+        # gameDisplay.fill(white)
 
         render_title(350, 70, 50, "High Scores")
         render_title(250, 150, 30, "Player")
@@ -117,7 +114,7 @@ def highscore_loop(player1, player2, player3, score1, score2, score3):
         # pygame.draw.circle(gameDisplay, red, (175, 175), 100) # game pos
         # pygame.draw.circle(gameDisplay, blue, (820, 290), 118) # high score pos
 
-        gameDisplay.blit(cursor_Img, (mouse_x - cursor_width / 2, mouse_y - cursor_height / 2))
+        gameDisplay.blit(cursor_Img, (mouse_x - meatball_size / 2, mouse_y - meatball_size / 2))
 
         pygame.display.update()
         clock.tick(60)

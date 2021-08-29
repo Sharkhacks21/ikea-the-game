@@ -1,9 +1,10 @@
 import blahajIkea
 import highScore
 import homeScreen
+import titleScreen
 
 # add title screen
-
+titleScreen.run_title()
 
 while True:
     # show home screen

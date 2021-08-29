@@ -45,48 +45,55 @@ trolley_height = 120
 
 meatball_size = 30
 
-total_levels = 3
+total_levels = 4
 
-level_distance = 700
+level_distance = 50
 
 """
 # Areas in order
 0 - Childrens area
 1 - Bedroom
 2 - Bathroom
+3 - Kitchen
 """
 
 ### obstacle sizes
 top_width = [
     155,
     130,
-    165
+    165,
+    170
 ]
 top_height = [
     169,
     143,
-    113
+    113,
+    99
 ]
 
 bottom_width = [
     160,
     131,
-    105
+    105,
+    157
 ]
 bottom_height = [
     160,
     165,
-    160
+    160,
+    150
 ]
 bg_width = [
     1960,
     2100,
-    2000
+    2000,
+    1280
 ]
 bg_height = [
     980,
     1190,
-    1000
+    1000,
+    956
 ]
 
 # arrays for the level images (init empty)
@@ -98,17 +105,20 @@ bg_imgs = []
 bg_img_paths = [
     'images/Children\'s Area/Children\'s Area BG.jpg',
     'images/Bedroom/BedroomBG.jpg',
-    'images/Bathroom/BathroomBG.jpg'
+    'images/Bathroom/BathroomBG.jpg',
+    'images/Kitchen/KitchenBG.jpg'
 ]
 top_img_paths = [
     'images/Children\'s Area/Children\'s Area top obs.png',
     'images/Bedroom/BedroomTopObs.png',
-    'images/Bathroom/BathroomTopObs.png'
+    'images/Bathroom/BathroomTopObs.png',
+    'images/Kitchen/KitchenTopObs.png'
 ]
 bottom_img_paths = [
     'images/Children\'s Area/Children\'s Area bottom obs.png',
     'images/Bedroom/BedroomBottomObs.png',
-    'images/Bathroom/BathroomBottomObs.png'
+    'images/Bathroom/BathroomBottomObs.png',
+    'images/Kitchen/KitchenBottomObs.png'
 ]
 
 #################################################################
@@ -185,6 +195,25 @@ def load_images():
     miniBlahaj_Img = pygame.image.load('images/characters/mini_blahaj.png')
     miniBlahaj_Img = pygame.transform.scale(miniBlahaj_Img, (30, 30))
 
+    global win_bg_Img
+    win_bg_Img = pygame.image.load('images/VictoryScreenBG.png')
+    win_bg_Img = pygame.transform.scale(win_bg_Img, (1245, 700))
+
+    global lose_bg_Img
+    lose_bg_Img = pygame.image.load('images/LossScreen3.png')
+    lose_bg_Img = pygame.transform.scale(lose_bg_Img, (1245, 700))
+
+    global died_Img
+    died_Img = pygame.image.load('images/LoseLogo.png')
+    died_Img = pygame.transform.scale(died_Img, (598, 149))
+
+    global map_bg_Img
+    map_bg_Img = pygame.image.load('images/map.jpg')
+    map_bg_Img = pygame.transform.scale(map_bg_Img, (1244, 700))
+
+    global win_logo_Img
+    win_logo_Img = pygame.image.load('images/WinLogo.png')
+    win_logo_Img = pygame.transform.scale(win_logo_Img, (287, 281))
 
 def text_objects(text, font):
     # render text objects
@@ -320,21 +349,21 @@ def countdown_text(i):
     text_font = pygame.font.Font('freesansbold.ttf', 20)
     text_obj = text_font.render("use UP, DOWN and RIGHT arrow keys to move blahaj", True, white)
     text_rect = text_obj.get_rect()
-    text_rect.center = (display_width / 2, 200)
+    text_rect.center = (display_width / 2, 340)
 
     gameDisplay.blit(text_obj, text_rect)
 
     text_font = pygame.font.Font('freesansbold.ttf', 20)
     text_obj = text_font.render("collect meatballs and power-up frankie files", True, white)
     text_rect = text_obj.get_rect()
-    text_rect.center = (display_width / 2, 230)
+    text_rect.center = (display_width / 2, 370)
 
     gameDisplay.blit(text_obj, text_rect)
 
     text_font = pygame.font.Font('freesansbold.ttf', 20)
     text_obj = text_font.render("avoid obstacles and the evil grabby hand", True, white)
     text_rect = text_obj.get_rect()
-    text_rect.center = (display_width / 2, 260)
+    text_rect.center = (display_width / 2, 400)
 
     gameDisplay.blit(text_obj, text_rect)
 
@@ -342,14 +371,14 @@ def countdown_text(i):
         text_font = pygame.font.Font('freesansbold.ttf', 100)
         text_obj = text_font.render(str("Let's Go!"), True, white)
         text_rect = text_obj.get_rect()
-        text_rect.center = (display_width / 2, display_height / 2 + 100)
+        text_rect.center = (display_width / 2, display_height / 2 + 200)
 
         gameDisplay.blit(text_obj, text_rect)
     else:
         text_font = pygame.font.Font('freesansbold.ttf', 100)
         text_obj = text_font.render(str(i), True, white)
         text_rect = text_obj.get_rect()
-        text_rect.center = (display_width / 2, display_height / 2 + 100)
+        text_rect.center = (display_width / 2, display_height / 2 + 200)
 
         gameDisplay.blit(text_obj, text_rect)
 
@@ -357,10 +386,10 @@ def countdown_loop():
     countdown = list(range(0, 6))[::-1]
 
     for i in countdown:
-        gameDisplay.fill(black)
+        gameDisplay.blit(map_bg_Img, (0, 0))
 
         countdown_text(i)
-        print(i)
+        # print(i)
 
         pygame.display.update()
         pygame.time.wait(1000)
@@ -465,8 +494,6 @@ def game_loop():
     bottom_obstacle_onScreen = False
     bottom_obstacle_wait = random.randint(obstacle_min_time, obstacle_max_time)
     bottom_obstacle_next = 0
-
-    # print(bottom_obstacle_wait, top_obstacle_wait)
 
     ############################################################################
 
@@ -822,17 +849,15 @@ def game_loop():
             time_bonus = 0
             dist_travelled = 0
             level += 1
-            if level > total_levels:
-                win = True
-                gamevOver = True
 
-
-        # if lose condition end the gameloop
+        if level > total_levels - 1:
+            win = True
+            gameOver = True
+            print("gameover")
 
         if not gameOver:
 
             # note item rendered first get rendered in behind
-
             # render bg
             gameDisplay.blit(bg_imgs[level], (bg_posX, 0))
 
@@ -891,29 +916,99 @@ def win_screen_loop(score, highscore):
     playerName = ""
     replay = True
 
-    option_selected = True
+    option_selected = False
 
-    # while option_selected:
+    pygame.mouse.set_visible(False)
+
+    back_btn_posX = 200
+    back_btn_posY = 500
+
+    replay_btn_posX = 780
+    replay_btn_posY = 500
+
+    while not option_selected:
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                print("click pos", mouse_x, mouse_y)
+                if back_btn_posX < mouse_x < back_btn_posX + 120 \
+                        and back_btn_posY < mouse_y < back_btn_posY + button_height:
+                    option_selected = True
+                    replay = False
+                if replay_btn_posX < mouse_x < replay_btn_posX + 120 \
+                        and replay_btn_posY < mouse_y < replay_btn_posY + button_height:
+                    option_selected = True
+                    replay = True
+
         # render win bg
-        # render win text
-        # render replay button
-        # check for input
-        # if click sucess, save data
+        gameDisplay.blit(win_bg_Img, (0, 0))
+        # gameDisplay.fill(white)
+
+        gameDisplay.blit(win_logo_Img, (400, 100))
+
+        # render buttons
+        render_text(back_btn_posX, back_btn_posY, 120, "Back", blue)
+        render_text(replay_btn_posX, replay_btn_posY, 120, "Replay", blue)
+
+        gameDisplay.blit(meatball_Img, (mouse_x - meatball_size / 2, mouse_y - meatball_size / 2))
+
+        pygame.display.update()
+        clock.tick(60)
 
     return replay, playerName
 
 def lose_screen_loop(score, highscore):
     # show lose
-    playerName = ""
+    playerName = "player"
     replay = True
 
-    option_selected = True
+    option_selected = False
+    pygame.mouse.set_visible(False)
 
-    # while option_selected:
-    #     # render lose bg
-    #     # render lose text
-    #     # render replay button
-    #     # check for input
+    back_btn_posX = 200
+    back_btn_posY = 500
+
+    replay_btn_posX = 780
+    replay_btn_posY = 500
+
+    while not option_selected:
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                print("click pos", mouse_x, mouse_y)
+                if back_btn_posX < mouse_x < back_btn_posX + 120 \
+                        and back_btn_posY < mouse_y < back_btn_posY + button_height:
+                    option_selected = True
+                    replay = False
+                if replay_btn_posX < mouse_x < replay_btn_posX + 120 \
+                        and replay_btn_posY < mouse_y < replay_btn_posY + button_height:
+                    option_selected = True
+                    replay = True
+
+        # render lose bg
+        gameDisplay.blit(lose_bg_Img, (0, 0))
+
+        # render lose text
+        gameDisplay.blit(died_Img, (250, 90))
+
+        # render buttons
+        render_text(back_btn_posX, back_btn_posY, 120, "Back", blue)
+        render_text(replay_btn_posX, replay_btn_posY, 120, "Replay", blue)
+
+        gameDisplay.blit(meatball_Img, (mouse_x - meatball_size / 2, mouse_y - meatball_size / 2))
+
+        pygame.display.update()
+        clock.tick(60)
 
     return replay, playerName
 
@@ -924,6 +1019,14 @@ def render_text(x, y, width, text, color):
     text_obj = text_font.render(text, True, black)
     text_rect = text_obj.get_rect()
     text_rect.center = (x + width/2, y + button_height/2)
+
+    gameDisplay.blit(text_obj, text_rect)
+
+def render_title(x, y, fontsize, text):
+    text_font = pygame.font.Font('freesansbold.ttf', fontsize)
+    text_obj = text_font.render(text, True, black)
+    text_rect = text_obj.get_rect()
+    text_rect.center = (x, y)
 
     gameDisplay.blit(text_obj, text_rect)
 
@@ -964,20 +1067,23 @@ def runBlahajGame():
         channel2.stop()
 
         # save the high score
-        player_name = ""
 
-        df = pd.read_excel("savedData/blahajData.xlsx", sheet_name="win")
+        df = pd.read_excel("savedData/blahajData.xlsx", sheet_name="win", index_col=0)
+        print(df)
         if len(df.index) == 0:
             highscore = 0
         else:
             highscore = df.loc[0]["score"]
         if win:
-            player_name = win_screen_loop(score, highscore)
+            play, player_name = win_screen_loop(score, highscore)
         else:
-            player_name = lose_screen_loop(score, highscore)
+            play, player_name = lose_screen_loop(score, highscore)
 
-        new_round = [player_name, score]
-        df.loc[len(df)] = new_round
+        new_df = pd.DataFrame(list([player_name, score]))
+        print(new_df)
+        df.append(new_df)
+        print(df)
+
         df.to_excel("savedData/blahajData.xlsx", sheet_name="win")
 
     # end the program if the game_loop is exited
