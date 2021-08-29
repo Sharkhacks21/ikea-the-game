@@ -12,6 +12,8 @@ import pandas as pd
 display_width = 1100
 display_height = 700
 
+button_height = 50
+
 blahaj_speed = 5
 
 # set colour values arrays
@@ -884,12 +886,14 @@ def game_loop():
         pygame.display.update()
         clock.tick(60)
 
-def win_screen_loop(score):
+def win_screen_loop(score, highscore):
     # show win screen
     playerName = ""
     replay = True
 
-    # while True:
+    option_selected = True
+
+    # while option_selected:
         # render win bg
         # render win text
         # render replay button
@@ -898,12 +902,14 @@ def win_screen_loop(score):
 
     return replay, playerName
 
-def lose_screen_loop(score, level, dist_travelled):
+def lose_screen_loop(score, highscore):
     # show lose
     playerName = ""
     replay = True
 
-    # while True:
+    option_selected = True
+
+    # while option_selected:
     #     # render lose bg
     #     # render lose text
     #     # render replay button
@@ -911,6 +917,15 @@ def lose_screen_loop(score, level, dist_travelled):
 
     return replay, playerName
 
+def render_text(x, y, width, text, color):
+    pygame.draw.rect(gameDisplay, color, pygame.Rect(x, y, width, button_height))
+
+    text_font = pygame.font.Font('freesansbold.ttf', 20)
+    text_obj = text_font.render(text, True, black)
+    text_rect = text_obj.get_rect()
+    text_rect.center = (x + width/2, y + button_height/2)
+
+    gameDisplay.blit(text_obj, text_rect)
 
 def runBlahajGame():
     ## Pygame segment
@@ -948,24 +963,24 @@ def runBlahajGame():
         win, score, level, dist_travelled = game_loop()
         channel2.stop()
 
-        # if win run win screen
-        if win:
-            player_name = win_screen_loop(score)
-            df = pd.read_excel("savedData/blahajData.xlsx", sheet_name="win")
-            new_round = [player_name, score]
-            df.loc[len(df)] = new_round
+        # save the high score
+        player_name = ""
 
+        df = pd.read_excel("savedData/blahajData.xlsx", sheet_name="win")
+        if len(df.index) == 0:
+            highscore = 0
         else:
-            # if lose run lose creen
-            player_name = lose_screen_loop(score, level, dist_travelled)
-            df = pd.read_excel("savedData/blahajData.xlsx", sheet_name="lose")
-            new_round = [player_name, score, level, dist_travelled]
-            df.loc[len(df)] = new_round
+            highscore = df.loc[0]["score"]
+        if win:
+            player_name = win_screen_loop(score, highscore)
+        else:
+            player_name = lose_screen_loop(score, highscore)
+
+        new_round = [player_name, score]
+        df.loc[len(df)] = new_round
+        df.to_excel("savedData/blahajData.xlsx", sheet_name="win")
 
     # end the program if the game_loop is exited
     pygame.quit()
-
-    # no need to quit this ends the program
-    # quit()
 
     return

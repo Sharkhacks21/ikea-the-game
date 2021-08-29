@@ -4,6 +4,7 @@ import homeScreen
 
 # add title screen
 
+
 while True:
     # show home screen
     # home screen returns a value
@@ -15,6 +16,5 @@ while True:
         blahajIkea.runBlahajGame()
 
     # if home screen select is high scores, run high score screen
-
-
-    pass
+    else:
+        highScore.run_highscore()
