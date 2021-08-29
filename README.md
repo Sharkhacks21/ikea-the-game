@@ -6,8 +6,10 @@ Nice to meat you!
 The tagline is a play on the word meet, referencing Ikea's famous Swedish Meatballs
 
 ## How to play
+Just the UP, DOWN and RIGHT arrows to help blahaj get through the many Ikea showrooms!
 
 ## Installation
+Clone this repo and run main to play!
 
 # Credits
 ## Image credits
