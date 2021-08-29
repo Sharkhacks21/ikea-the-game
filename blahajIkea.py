@@ -3,6 +3,7 @@ import math
 import random
 import pygame
 import time
+import pandas as pd
 
 #################################################################
 # Constants for the game
@@ -117,8 +118,10 @@ replay = False
 pygame.mixer.init(frequency = 44100, size = -16, channels = 1, buffer = 2**12)
 # init() channels refers to mono vs stereo, not playback Channel object
 
-# create separate Channel objects for simultaneous playback
-channel1 = pygame.mixer.Channel(0) # argument must be int
+## create separate Channel objects for simultaneous playback
+# sound effect channel
+channel1 = pygame.mixer.Channel(0)
+# bgm channel
 channel2 = pygame.mixer.Channel(1)
 
 #################################################################
@@ -218,6 +221,11 @@ def boost_render(boost_val):
 
 
 def load_sounds():
+    # bgm
+    global bgm_music
+    bgm_music = pygame.mixer.Sound("audio/Hey_So_Jungle.mp3")
+
+    # sound effects
     global col_sound
     col_sound = pygame.mixer.Sound("audio/collisionSound.mp3")
 
@@ -308,35 +316,43 @@ def level_num_render(level):
 
 def countdown_text(i):
     text_font = pygame.font.Font('freesansbold.ttf', 20)
-    text_obj = text_font.render("use up down and left arrow keys to move", True, white)
+    text_obj = text_font.render("use UP, DOWN and RIGHT arrow keys to move blahaj", True, white)
     text_rect = text_obj.get_rect()
     text_rect.center = (display_width / 2, 200)
 
     gameDisplay.blit(text_obj, text_rect)
 
     text_font = pygame.font.Font('freesansbold.ttf', 20)
-    text_obj = text_font.render("collect meatballs and powerup files", True, white)
+    text_obj = text_font.render("collect meatballs and power-up frankie files", True, white)
     text_rect = text_obj.get_rect()
     text_rect.center = (display_width / 2, 230)
 
     gameDisplay.blit(text_obj, text_rect)
 
     text_font = pygame.font.Font('freesansbold.ttf', 20)
-    text_obj = text_font.render("avoid obstacles", True, white)
+    text_obj = text_font.render("avoid obstacles and the evil grabby hand", True, white)
     text_rect = text_obj.get_rect()
     text_rect.center = (display_width / 2, 260)
 
     gameDisplay.blit(text_obj, text_rect)
 
-    text_font = pygame.font.Font('freesansbold.ttf', 100)
-    text_obj = text_font.render(str(i), True, white)
-    text_rect = text_obj.get_rect()
-    text_rect.center = (display_width / 2, display_height / 2 + 100)
+    if i == 0:
+        text_font = pygame.font.Font('freesansbold.ttf', 100)
+        text_obj = text_font.render(str("Let's Go!"), True, white)
+        text_rect = text_obj.get_rect()
+        text_rect.center = (display_width / 2, display_height / 2 + 100)
 
-    gameDisplay.blit(text_obj, text_rect)
+        gameDisplay.blit(text_obj, text_rect)
+    else:
+        text_font = pygame.font.Font('freesansbold.ttf', 100)
+        text_obj = text_font.render(str(i), True, white)
+        text_rect = text_obj.get_rect()
+        text_rect.center = (display_width / 2, display_height / 2 + 100)
+
+        gameDisplay.blit(text_obj, text_rect)
 
 def countdown_loop():
-    countdown = list(range(0, 4))[::-1]
+    countdown = list(range(0, 6))[::-1]
 
     for i in countdown:
         gameDisplay.fill(black)
@@ -800,13 +816,14 @@ def game_loop():
 
         # check if distance has been reached (to check for transition to next scene)
         if dist_travelled > level_distance:
+            score += time_bonus
+            time_bonus = 0
             dist_travelled = 0
             level += 1
             if level > total_levels:
                 win = True
                 gamevOver = True
-            score += time_bonus
-            time_bonus = 0
+
 
         # if lose condition end the gameloop
 
@@ -860,37 +877,40 @@ def game_loop():
         else:
             if win:
                 channel1.play(win_sound)
-                # save as win
-                return win
             else:
                 channel1.play(lose_sound)
-                # save as lose
-                return win
+            return win, score, level, dist_travelled
 
         pygame.display.update()
         clock.tick(60)
 
-def win_screen_loop():
+def win_screen_loop(score):
     # show win screen
+    playerName = ""
+    replay = True
+
     # while True:
         # render win bg
         # render win text
         # render replay button
         # check for input
-    # return replay
-    pass
+        # if click sucess, save data
 
-def lose_screen_loop():
+    return replay, playerName
+
+def lose_screen_loop(score, level, dist_travelled):
     # show lose
+    playerName = ""
+    replay = True
 
     # while True:
     #     # render lose bg
     #     # render lose text
     #     # render replay button
     #     # check for input
-    #
-    # return replay
-    pass
+
+    return replay, playerName
+
 
 def runBlahajGame():
     ## Pygame segment
@@ -918,13 +938,29 @@ def runBlahajGame():
 
     play = True
 
+    channel2.set_volume(0.2)
+
     # run the game logic loop'
-    # while play:
+    while play:
         # run game loop
+        channel2.play(bgm_music, loops=-1)
+        countdown_loop()
+        win, score, level, dist_travelled = game_loop()
+        channel2.stop()
+
         # if win run win screen
-        # if lose run lose creen
-    countdown_loop()
-    win = game_loop()
+        if win:
+            player_name = win_screen_loop(score)
+            df = pd.read_excel("savedData/blahajData.xlsx", sheet_name="win")
+            new_round = [player_name, score]
+            df.loc[len(df)] = new_round
+
+        else:
+            # if lose run lose creen
+            player_name = lose_screen_loop(score, level, dist_travelled)
+            df = pd.read_excel("savedData/blahajData.xlsx", sheet_name="lose")
+            new_round = [player_name, score, level, dist_travelled]
+            df.loc[len(df)] = new_round
 
     # end the program if the game_loop is exited
     pygame.quit()

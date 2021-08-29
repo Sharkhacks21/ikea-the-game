@@ -27,6 +27,14 @@ cursor_height = 94
 button_width = 120
 button_height = 50
 
+
+###########################
+
+pygame.mixer.init(frequency = 44100, size = -16, channels = 1, buffer = 2**12)
+
+# sound effect channel
+channel3 = pygame.mixer.Channel(3)
+
 def load_images():
 
     # homeScreen
@@ -101,6 +109,13 @@ def homescreen_loop():
     # return value is true if game screen, false if high score
     return game_selected
 
+
+def load_audio():
+    # bgm
+    global bgm_music
+    bgm_music = pygame.mixer.Sound("audio/Cat_life.mp3")
+
+
 def run_homescreen():
     ## Pygame segment
     # start pygame
@@ -115,15 +130,23 @@ def run_homescreen():
     global clock
     clock = pygame.time.Clock()
 
+
     # load images
     load_images()
+
+    load_audio()
 
     # set the window icon (top corner)
     global programIcon
     programIcon = pygame.image.load("images/characters/blahajIcon.jpg")
     pygame.display.set_icon(programIcon)
 
+    channel3.set_volume(0.5)
+    channel3.play(bgm_music)
+
     game_selected = homescreen_loop()
+
+    channel3.stop()
 
     # end the program if the game_loop is exited
     pygame.quit()
