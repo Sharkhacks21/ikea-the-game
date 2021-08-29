@@ -11,6 +11,10 @@ The tagline is a play on the word meet, referencing Ikea's famous Swedish Meatba
 
 # Credits
 ## Image credits
+Title image: "photo of ocean waves at daytime" - Christoffer Engström, Unsplash
 
 ## Music credits
+"Dova-Syndrome" - https://dova-s.jp/
 
+## Sound effect credits
+https://soundeffect-lab.info/
