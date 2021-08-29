@@ -38,7 +38,7 @@ channel5 = pygame.mixer.Channel(5)
 def load_images():
 
     global titlescreen_bg_Img
-    titlescreen_bg_Img = pygame.image.load('images/swedish-meatballs - Copy.png')
+    titlescreen_bg_Img = pygame.image.load('images/TitlePNG.png')
     titlescreen_bg_Img = pygame.transform.scale(titlescreen_bg_Img, (bg_width, bg_height))
 
 
@@ -69,12 +69,12 @@ def titlescreen_loop():
                 option_selected = True
 
 
-        # gameDisplay.blit(highscore_bg_Img, (0, 0))
-        gameDisplay.fill(white)
-
-        render_title(350, 150, 70, "Bla-hajimemashite")
-        render_title(350, 230, 30, "Nice to Meat you!")
-        render_title(350, 450, 20, "Press any key to continue")
+        gameDisplay.blit(titlescreen_bg_Img, (0, 0))
+        # gameDisplay.fill(white)
+        #
+        # render_title(350, 150, 70, "Bla-hajimemashite")
+        # render_title(350, 230, 30, "Nice to Meat you!")
+        # render_title(350, 450, 20, "Press any key to continue")
 
         pygame.display.update()
         clock.tick(60)

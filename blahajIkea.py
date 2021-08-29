@@ -913,18 +913,38 @@ def game_loop():
 
 def win_screen_loop(score, highscore):
     # show win screen
-    playerName = ""
+    user_text = "player"
     replay = True
 
     option_selected = False
-
     pygame.mouse.set_visible(False)
 
     back_btn_posX = 200
-    back_btn_posY = 500
+    back_btn_posY = 550
 
     replay_btn_posX = 780
-    replay_btn_posY = 500
+    replay_btn_posY = 550
+
+    #####################
+
+    # basic font for user typed
+    base_font = pygame.font.Font(None, 32)
+    user_text = ''
+
+    # create rectangle
+    input_rect = pygame.Rect(410, 320, 140, 32)
+    # input_rect = pygame.Rect(200, 200, 140, 32)
+
+    # color_active stores color(lightskyblue3) which
+    # gets active when input box is clicked by user
+    color_active = pygame.Color('lightskyblue3')
+
+    # color_passive store color(chartreuse4) which is
+    # color of input box.
+    color_passive = pygame.Color('gray')
+    color = color_passive
+
+    active = False
 
     while not option_selected:
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -944,12 +964,57 @@ def win_screen_loop(score, highscore):
                         and replay_btn_posY < mouse_y < replay_btn_posY + button_height:
                     option_selected = True
                     replay = True
+
+                ###########
+
+                if input_rect.collidepoint(event.pos):
+                    active = True
+                else:
+                    active = False
+
+            if event.type == pygame.KEYDOWN:
+
+                # Check for backspace
+                if event.key == pygame.K_BACKSPACE:
+
+                    # get text input from 0 to -1 i.e. end.
+                    user_text = user_text[:-1]
+
+                # Unicode standard is used for string
+                # formation
+                else:
+                    user_text += event.unicode
+
+            if active:
+                color = color_active
+            else:
+                color = color_passive
+
+            ##################
 
         # render win bg
         gameDisplay.blit(win_bg_Img, (0, 0))
         # gameDisplay.fill(white)
 
-        gameDisplay.blit(win_logo_Img, (400, 100))
+        # draw rectangle and argument passed which should
+        # be on screen
+        pygame.draw.rect(gameDisplay, color, input_rect)
+
+        text_surface = base_font.render(user_text, True, (255, 255, 255))
+
+        # render at position stated in arguments
+        gameDisplay.blit(text_surface, (input_rect.x + 5, input_rect.y + 5))
+
+        # set width of textfield so that text cannot get
+        # outside of user's text input
+        input_rect.w = max(100, text_surface.get_width() + 10)
+
+        gameDisplay.blit(win_logo_Img, (400, 10))
+
+        render_title(355, 340, 20, "Name: ", white)
+
+        render_title(520, 390, 20, "Score: " + str(score), white)
+        render_title(520, 415, 20, "High Score: " + str(highscore), white)
 
         # render buttons
         render_text(back_btn_posX, back_btn_posY, 120, "Back", blue)
@@ -960,21 +1025,44 @@ def win_screen_loop(score, highscore):
         pygame.display.update()
         clock.tick(60)
 
-    return replay, playerName
+    return replay, user_text
 
 def lose_screen_loop(score, highscore):
     # show lose
-    playerName = "player"
+    user_text = "player"
     replay = True
 
     option_selected = False
     pygame.mouse.set_visible(False)
 
     back_btn_posX = 200
-    back_btn_posY = 500
+    back_btn_posY = 550
 
     replay_btn_posX = 780
-    replay_btn_posY = 500
+    replay_btn_posY = 550
+
+    #####################
+
+    # basic font for user typed
+    base_font = pygame.font.Font(None, 32)
+    user_text = ''
+
+    # create rectangle
+    input_rect = pygame.Rect(410, 270, 140, 32)
+    # input_rect = pygame.Rect(200, 200, 140, 32)
+
+    # color_active stores color(lightskyblue3) which
+    # gets active when input box is clicked by user
+    color_active = pygame.Color('lightskyblue3')
+
+    # color_passive store color(chartreuse4) which is
+    # color of input box.
+    color_passive = pygame.Color('gray')
+    color = color_passive
+
+    active = False
+
+    #####################
 
     while not option_selected:
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -995,11 +1083,62 @@ def lose_screen_loop(score, highscore):
                     option_selected = True
                     replay = True
 
+                ###########
+
+                if input_rect.collidepoint(event.pos):
+                    active = True
+                else:
+                    active = False
+
+            if event.type == pygame.KEYDOWN:
+
+                # Check for backspace
+                if event.key == pygame.K_BACKSPACE:
+
+                    # get text input from 0 to -1 i.e. end.
+                    user_text = user_text[:-1]
+
+                # Unicode standard is used for string
+                # formation
+                else:
+                    user_text += event.unicode
+
+        if active:
+            color = color_active
+        else:
+            color = color_passive
+
+        ##################
+
+
         # render lose bg
         gameDisplay.blit(lose_bg_Img, (0, 0))
 
+        ##################
+
+
+        # draw rectangle and argument passed which should
+        # be on screen
+        pygame.draw.rect(gameDisplay, color, input_rect)
+
+        text_surface = base_font.render(user_text, True, (255, 255, 255))
+
+        # render at position stated in arguments
+        gameDisplay.blit(text_surface, (input_rect.x + 5, input_rect.y + 5))
+
+        # set width of textfield so that text cannot get
+        # outside of user's text input
+        input_rect.w = max(100, text_surface.get_width() + 10)
+
+        ##################
+
         # render lose text
         gameDisplay.blit(died_Img, (250, 90))
+
+        render_title(355, 290, 20, "Name: ", white)
+
+        render_title(520, 340, 20, "Score: " + str(score), white)
+        render_title(520, 365, 20, "High Score: " + str(highscore), white)
 
         # render buttons
         render_text(back_btn_posX, back_btn_posY, 120, "Back", blue)
@@ -1010,7 +1149,7 @@ def lose_screen_loop(score, highscore):
         pygame.display.update()
         clock.tick(60)
 
-    return replay, playerName
+    return replay, user_text
 
 def render_text(x, y, width, text, color):
     pygame.draw.rect(gameDisplay, color, pygame.Rect(x, y, width, button_height))
@@ -1022,9 +1161,9 @@ def render_text(x, y, width, text, color):
 
     gameDisplay.blit(text_obj, text_rect)
 
-def render_title(x, y, fontsize, text):
+def render_title(x, y, fontsize, text, color):
     text_font = pygame.font.Font('freesansbold.ttf', fontsize)
-    text_obj = text_font.render(text, True, black)
+    text_obj = text_font.render(text, True, color)
     text_rect = text_obj.get_rect()
     text_rect.center = (x, y)
 
@@ -1068,7 +1207,7 @@ def runBlahajGame():
 
         # save the high score
 
-        df = pd.read_excel("savedData/blahajData.xlsx", sheet_name="win", index_col=0)
+        df = pd.read_excel("savedData/blahajData.xlsx", sheet_name="win")
         print(df)
         if len(df.index) == 0:
             highscore = 0
@@ -1079,9 +1218,9 @@ def runBlahajGame():
         else:
             play, player_name = lose_screen_loop(score, highscore)
 
-        new_df = pd.DataFrame(list([player_name, score]))
-        print(new_df)
+        new_df = pd.DataFrame(list([len(df), player_name, score]))
         df.append(new_df)
+        df.sort_values(by=['score'], ascending=False)
         print(df)
 
         df.to_excel("savedData/blahajData.xlsx", sheet_name="win")
